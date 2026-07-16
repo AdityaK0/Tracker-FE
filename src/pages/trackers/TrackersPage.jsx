@@ -1,16 +1,15 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Target, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { format } from 'date-fns';
+import { Plus, Target } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { trackersApi } from '../../api/endpoints';
 import Badge from '../../components/ui/Badge';
 import ProgressBar from '../../components/ui/ProgressBar';
 import EmptyState from '../../components/shared/EmptyState';
 import SkeletonCard from '../../components/shared/SkeletonCard';
 import { cn } from '../../utils/cn';
-import toast from 'react-hot-toast';
+import { formatDate } from '../../utils/date';
 
 const statuses = [
   { value: 'all', label: 'All' },
@@ -29,32 +28,15 @@ const statusVariantMap = {
 
 export default function TrackersPage() {
   const [statusFilter, setStatusFilter] = useState('all');
-  const qc = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: trackers, isLoading } = useQuery({
     queryKey: ['trackers', statusFilter],
-    queryFn: () =>
-      trackersApi.list(statusFilter === 'all' ? undefined : statusFilter),
+    queryFn: () => trackersApi.list(statusFilter === 'all' ? undefined : statusFilter),
   });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id) => trackersApi.delete(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['trackers'] });
-      toast.success('Tracker deleted');
-    },
-    onError: () => toast.error('Failed to delete tracker'),
-  });
-
-  const handleDelete = (id, name) => {
-    if (confirm(`Delete "${name}"?`)) {
-      deleteMutation.mutate(id);
-    }
-  };
 
   return (
     <div>
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-light text-[#111111] tracking-tighter">Trackers</h1>
@@ -67,7 +49,7 @@ export default function TrackersPage() {
         </Link>
       </div>
 
-      {/* Status filter tabs */}
+      {/* Filter tabs */}
       <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-full p-1 mb-6 w-fit">
         {statuses.map((s) => (
           <button
@@ -85,23 +67,16 @@ export default function TrackersPage() {
         ))}
       </div>
 
-      {/* Content */}
       {isLoading ? (
         <div className="grid sm:grid-cols-2 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
+          {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       ) : !trackers?.length ? (
         <EmptyState
           icon={Target}
           title="No trackers found"
           description="Create your first habit tracker to start building better habits"
-          action={
-            <Link to="/trackers/new" className="btn-primary">
-              Create tracker
-            </Link>
-          }
+          action={<Link to="/trackers/new" className="btn-primary">Create tracker</Link>}
         />
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
@@ -111,33 +86,21 @@ export default function TrackersPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="card p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-300 group"
+              onClick={() => navigate(`/trackers/${tracker.id}`)}
+              className="card p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-300 cursor-pointer"
             >
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex-1 min-w-0">
-                  <Link
-                    to={`/trackers/${tracker.id}`}
-                    className="text-sm font-medium text-[#111111] hover:text-[#555555] transition-colors"
-                  >
-                    {tracker.name}
-                  </Link>
+                  <p className="text-sm font-medium text-[#111111] truncate">{tracker.name}</p>
                   {tracker.description && (
                     <p className="text-xs text-[#888888] mt-0.5 truncate font-light">
                       {tracker.description}
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <Badge variant={statusVariantMap[tracker.status]}>
-                    {tracker.status}
-                  </Badge>
-                  <button
-                    onClick={() => handleDelete(tracker.id, tracker.name)}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 text-[#888888] hover:text-red-500 hover:bg-red-50 transition-all rounded-lg"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                <Badge variant={statusVariantMap[tracker.status]}>
+                  {tracker.status}
+                </Badge>
               </div>
 
               <ProgressBar value={tracker.completion_percent} className="mb-2" />
@@ -148,12 +111,9 @@ export default function TrackersPage() {
               </div>
 
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#E5E5E5] text-xs text-[#888888] font-light">
+                <span>{tracker.duration_days} days · {tracker.habit_count} habits</span>
                 <span>
-                  {tracker.duration_days} days · {tracker.habit_count} habits
-                </span>
-                <span>
-                  {format(new Date(tracker.start_date), 'MMM d')} –{' '}
-                  {format(new Date(tracker.end_date), 'MMM d, yyyy')}
+                  {formatDate(tracker.start_date, 'MMM d')} – {formatDate(tracker.end_date, 'MMM d, yyyy')}
                 </span>
               </div>
             </motion.div>

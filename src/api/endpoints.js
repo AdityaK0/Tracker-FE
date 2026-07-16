@@ -62,3 +62,17 @@ export const trackersApi = {
 export const dashboardApi = {
   stats: () => apiClient.get('/dashboard').then((r) => r.data),
 };
+
+// Profile
+export const profileApi = {
+  getMe: () => apiClient.get('/users/me').then(r => r.data),
+  updateMe: (data) => apiClient.patch('/users/me', data).then(r => r.data),
+  uploadAvatar: (file) => {
+    const form = new FormData();
+    form.append('file', file);
+    return apiClient.post('/users/avatar', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data);
+  },
+  deleteAvatar: () => apiClient.delete('/users/avatar').then(r => r.data),
+};

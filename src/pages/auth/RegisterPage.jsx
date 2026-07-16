@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Zap } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import toast from 'react-hot-toast';
+import { toast } from '../../components/ui/Toaster';
 
 const schema = z.object({
   username: z.string().min(3).max(50),

@@ -52,6 +52,13 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const fresh = await authApi.me();
+      setUser(fresh);
+    } catch {}
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -61,6 +68,7 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
+        refreshUser,
       }}
     >
       {children}

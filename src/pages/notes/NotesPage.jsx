@@ -5,12 +5,12 @@ import { Plus, Search, Pin, Archive, Trash2, Edit3, StickyNote } from 'lucide-re
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format } from 'date-fns';
+import { formatDate } from '../../utils/date';
 import { notesApi } from '../../api/endpoints';
 import Modal from '../../components/ui/Modal';
 import EmptyState from '../../components/shared/EmptyState';
 import SkeletonCard from '../../components/shared/SkeletonCard';
-import toast from 'react-hot-toast';
+import { toast } from '../../components/ui/Toaster';
 import { cn } from '../../utils/cn';
 
 const noteSchema = z.object({
@@ -74,7 +74,7 @@ function NoteCard({ note, onEdit, onPin, onArchive, onDelete }) {
 
       <div className="flex items-center justify-between mt-auto pt-2 border-t border-[#E5E5E5]">
         <span className="text-xs text-[#888888] font-light">
-          {format(new Date(note.updated_at), 'MMM d, yyyy')}
+          {formatDate(note.updated_at)}
         </span>
         {note.is_pinned && <Pin className="w-3 h-3 text-[#555555]" />}
       </div>

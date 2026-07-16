@@ -34,7 +34,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { trackersApi } from '../../api/endpoints';
 import { cn } from '../../utils/cn';
-import toast from 'react-hot-toast';
+import { toast } from '../../components/ui/Toaster';
 import { format, addDays } from 'date-fns';
 
 const DURATIONS = [

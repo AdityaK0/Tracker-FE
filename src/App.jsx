@@ -9,6 +9,7 @@ import NotesPage from './pages/notes/NotesPage';
 import TrackersPage from './pages/trackers/TrackersPage';
 import CreateTrackerPage from './pages/trackers/CreateTrackerPage';
 import TrackerDetailPage from './pages/trackers/TrackerDetailPage';
+import ProfilePage from './pages/ProfilePage';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 
 function ProtectedRoute({ children }) {
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="trackers" element={<TrackersPage />} />
           <Route path="trackers/new" element={<CreateTrackerPage />} />
           <Route path="trackers/:id" element={<TrackerDetailPage />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

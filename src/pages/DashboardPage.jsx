@@ -7,7 +7,7 @@ import LoadingSpinner from '../components/shared/LoadingSpinner';
 import Badge from '../components/ui/Badge';
 import ProgressBar from '../components/ui/ProgressBar';
 import { Link } from 'react-router-dom';
-import { format } from 'date-fns';
+import { formatDate, parseUTC } from '../utils/date';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -127,7 +127,7 @@ export default function DashboardPage() {
                     <span className="text-sm font-normal text-[#111111] truncate">{note.title}</span>
                   </div>
                   {note.content && <p className="text-xs text-[#888888] font-light line-clamp-1 leading-relaxed">{note.content}</p>}
-                  <p className="text-xs text-[#888888] mt-1.5">{format(new Date(note.updated_at), 'MMM d, yyyy')}</p>
+                  <p className="text-xs text-[#888888] mt-1.5">{formatDate(note.updated_at)}</p>
                 </div>
               </Link>
             ))}
@@ -151,7 +151,7 @@ export default function DashboardPage() {
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             {upcomingTrackers.slice(0, 4).map(t => {
-              const startsIn = Math.ceil((new Date(t.start_date).getTime() - Date.now()) / 86400000);
+              const startsIn = Math.ceil((parseUTC(t.start_date).getTime() - Date.now()) / 86400000);
               return (
                 <Link key={t.id} to={`/trackers/${t.id}`}>
                   <div className="card-hover p-4">
