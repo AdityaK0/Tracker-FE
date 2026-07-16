@@ -67,37 +67,31 @@ export default function TrackerDetailPage() {
       label: 'Completion',
       value: `${tracker.completion_percent}%`,
       icon: Target,
-      color: 'text-indigo-400',
     },
     {
       label: 'Current Streak',
       value: `${tracker.current_streak}d`,
       icon: Flame,
-      color: 'text-amber-400',
     },
     {
       label: 'Longest Streak',
       value: `${tracker.longest_streak}d`,
       icon: Trophy,
-      color: 'text-yellow-400',
     },
     {
       label: 'Days Left',
       value: String(tracker.days_remaining),
       icon: Clock,
-      color: 'text-blue-400',
     },
     {
       label: 'Completed',
       value: String(tracker.completed_habits),
       icon: CheckSquare,
-      color: 'text-green-400',
     },
     {
       label: 'Missed',
       value: String(tracker.missed_habits),
       icon: XSquare,
-      color: 'text-red-400',
     },
   ];
 
@@ -113,7 +107,7 @@ export default function TrackerDetailPage() {
         </button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl font-bold text-white truncate">
+            <h1 className="text-xl font-light text-[#111111] tracking-tighter truncate">
               {tracker.name}
             </h1>
             <Badge variant={statusVariantMap[tracker.status]}>
@@ -121,7 +115,7 @@ export default function TrackerDetailPage() {
             </Badge>
           </div>
           {tracker.description && (
-            <p className="text-[#52525b] text-sm mt-0.5">
+            <p className="text-[#888888] text-sm mt-0.5 font-light">
               {tracker.description}
             </p>
           )}
@@ -130,7 +124,7 @@ export default function TrackerDetailPage() {
 
       {/* Stats row */}
       <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-        {statItems.map(({ label, value, icon: Icon, color }, i) => (
+        {statItems.map(({ label, value, icon: Icon }, i) => (
           <motion.div
             key={label}
             initial={{ opacity: 0, y: 4 }}
@@ -138,9 +132,11 @@ export default function TrackerDetailPage() {
             transition={{ delay: i * 0.04 }}
             className="card p-3 text-center"
           >
-            <Icon className={cn('w-4 h-4 mx-auto mb-1', color)} />
-            <p className="text-base font-bold text-white">{value}</p>
-            <p className="text-xs text-[#52525b]">{label}</p>
+            <div className="w-7 h-7 bg-[#F2F2F2] rounded-xl flex items-center justify-center mx-auto mb-2">
+              <Icon className="w-3.5 h-3.5 text-[#555555]" />
+            </div>
+            <p className="text-base font-light text-[#111111] tracking-tighter">{value}</p>
+            <p className="text-xs text-[#888888] font-light">{label}</p>
           </motion.div>
         ))}
       </div>
@@ -148,13 +144,13 @@ export default function TrackerDetailPage() {
       {/* Overall progress bar */}
       <div className="card p-4 mb-6">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-[#a1a1aa]">Overall Progress</span>
-          <span className="text-sm font-bold text-white">
+          <span className="text-sm text-[#555555] font-light">Overall Progress</span>
+          <span className="text-sm font-medium text-[#111111]">
             {tracker.completion_percent}%
           </span>
         </div>
         <ProgressBar value={tracker.completion_percent} />
-        <div className="flex justify-between mt-2 text-xs text-[#52525b]">
+        <div className="flex justify-between mt-2 text-xs text-[#888888] font-light">
           <span>
             Day {tracker.days_elapsed} of {tracker.duration_days}
           </span>
@@ -167,9 +163,9 @@ export default function TrackerDetailPage() {
 
       {/* Daily progress table */}
       <div className="card overflow-hidden">
-        <div className="p-4 border-b border-[#1a1a1a]">
-          <h2 className="text-sm font-semibold text-white">Daily Progress</h2>
-          <p className="text-xs text-[#52525b] mt-0.5">
+        <div className="p-4 border-b border-[#E5E5E5]">
+          <h2 className="text-sm font-medium text-[#111111]">Daily Progress</h2>
+          <p className="text-xs text-[#888888] mt-0.5 font-light">
             Click a cell to toggle completion
           </p>
         </div>
@@ -177,14 +173,14 @@ export default function TrackerDetailPage() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-[#1a1a1a]">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-[#52525b] uppercase tracking-wider sticky left-0 bg-[#111111] z-10 min-w-[90px]">
+              <tr className="border-b border-[#E5E5E5]">
+                <th className="text-left px-4 py-3 text-xs font-medium text-[#888888] uppercase tracking-wider sticky left-0 bg-white z-10 min-w-[90px]">
                   Day
                 </th>
                 {tracker.habits.map((habit) => (
                   <th
                     key={habit.id}
-                    className="px-4 py-3 text-xs font-semibold text-[#52525b] uppercase tracking-wider text-center min-w-[140px]"
+                    className="px-4 py-3 text-xs font-medium text-[#888888] uppercase tracking-wider text-center min-w-[140px]"
                   >
                     <span
                       className="truncate block max-w-[120px] mx-auto"
@@ -208,23 +204,23 @@ export default function TrackerDetailPage() {
                   <tr
                     key={dayIndex}
                     className={cn(
-                      'border-b border-[#0d0d0d] hover:bg-[#0d0d0d] transition-colors',
-                      isToday && 'bg-indigo-500/5',
+                      'border-b border-[#E5E5E5] hover:bg-[#F7F7F7] transition-colors',
+                      isToday && 'bg-[#F7F7F7]',
                     )}
                   >
                     <td
                       className={cn(
                         'px-4 py-3 text-sm sticky left-0 z-10',
                         isToday
-                          ? 'text-indigo-400 font-semibold bg-indigo-500/5'
+                          ? 'text-[#111111] font-medium bg-[#F7F7F7]'
                           : isPast
-                            ? 'text-[#a1a1aa] bg-[#111111]'
-                            : 'text-[#52525b] bg-[#111111]',
+                            ? 'text-[#555555] bg-white'
+                            : 'text-[#888888] bg-white',
                       )}
                     >
                       Day {dayIndex + 1}
                       {isToday && (
-                        <span className="ml-1.5 text-xs text-indigo-400">
+                        <span className="ml-1.5 text-xs text-[#888888] font-light">
                           ← today
                         </span>
                       )}
@@ -244,10 +240,10 @@ export default function TrackerDetailPage() {
                             className={cn(
                               'w-8 h-8 rounded-lg border-2 flex items-center justify-center mx-auto transition-all duration-150',
                               isFuture
-                                ? 'border-[#1a1a1a] cursor-not-allowed opacity-30'
+                                ? 'border-[#E5E5E5] cursor-not-allowed opacity-30 bg-[#F7F7F7]'
                                 : done
-                                  ? 'bg-green-500 border-green-500 hover:bg-green-600 hover:border-green-600'
-                                  : 'border-[#333333] hover:border-[#555555] bg-transparent',
+                                  ? 'bg-[#111111] border-[#111111] hover:bg-[#333333] hover:border-[#333333]'
+                                  : 'border-[#E5E5E5] hover:border-[#111111] bg-white',
                             )}
                             title={
                               isFuture

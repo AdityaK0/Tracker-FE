@@ -1,14 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import {
-  Target,
-  StickyNote,
-  CheckCircle2,
-  TrendingUp,
-  BookOpen,
-  Flame,
-  Clock,
-} from 'lucide-react';
+import { Target, StickyNote, CheckCircle2, TrendingUp, BookOpen, Flame, Clock, ArrowRight } from 'lucide-react';
 import { dashboardApi, trackersApi, notesApi } from '../api/endpoints';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -17,282 +9,158 @@ import ProgressBar from '../components/ui/ProgressBar';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 
-const statusVariantMap = {
-  active: 'active',
-  upcoming: 'upcoming',
-  completed: 'completed',
-  paused: 'paused',
-};
-
-function greeting() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
-}
-
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { data: stats, isLoading } = useQuery({ queryKey: ['dashboard'], queryFn: dashboardApi.stats });
+  const { data: trackers } = useQuery({ queryKey: ['trackers'], queryFn: () => trackersApi.list() });
+  const { data: notes } = useQuery({ queryKey: ['notes'], queryFn: () => notesApi.list() });
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['dashboard'],
-    queryFn: dashboardApi.stats,
-  });
-  const { data: trackers } = useQuery({
-    queryKey: ['trackers'],
-    queryFn: () => trackersApi.list(),
-  });
-  const { data: notes } = useQuery({
-    queryKey: ['notes'],
-    queryFn: () => notesApi.list(),
-  });
+  if (isLoading) return <LoadingSpinner />;
 
-  if (statsLoading) return <LoadingSpinner />;
+  const greeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
 
   const statCards = [
-    {
-      label: 'Active Trackers',
-      value: stats?.active_trackers ?? 0,
-      icon: Target,
-      color: 'text-indigo-400',
-      bg: 'bg-indigo-500/10',
-    },
-    {
-      label: 'Completed',
-      value: stats?.completed_trackers ?? 0,
-      icon: CheckCircle2,
-      color: 'text-green-400',
-      bg: 'bg-green-500/10',
-    },
-    {
-      label: 'Upcoming',
-      value: stats?.upcoming_trackers ?? 0,
-      icon: Clock,
-      color: 'text-amber-400',
-      bg: 'bg-amber-500/10',
-    },
-    {
-      label: 'Total Notes',
-      value: stats?.total_notes ?? 0,
-      icon: StickyNote,
-      color: 'text-blue-400',
-      bg: 'bg-blue-500/10',
-    },
+    { label: 'Active Trackers', value: stats?.active_trackers ?? 0, icon: Target },
+    { label: 'Completed', value: stats?.completed_trackers ?? 0, icon: CheckCircle2 },
+    { label: 'Upcoming', value: stats?.upcoming_trackers ?? 0, icon: Clock },
+    { label: 'Notes', value: stats?.total_notes ?? 0, icon: StickyNote },
   ];
 
-  const activeTrackers = trackers?.filter((t) => t.status === 'active') ?? [];
-  const upcomingTrackers =
-    trackers?.filter((t) => t.status === 'upcoming') ?? [];
+  const activeTrackers = trackers?.filter(t => t.status === 'active') ?? [];
+  const upcomingTrackers = trackers?.filter(t => t.status === 'upcoming') ?? [];
+  const recentNotes = notes?.slice(0, 4) ?? [];
 
   return (
-    <div>
+    <div className="animate-slide-up">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        <h1 className="text-2xl font-bold text-white mb-1">
-          {greeting()}, {user?.fullname?.split(' ')[0]} 👋
+      <div className="mb-8">
+        <h1 className="text-2xl font-light text-[#111111] tracking-tighter mb-1">
+          {greeting()}, {user?.fullname?.split(' ')[0]}
         </h1>
-        <p className="text-[#a1a1aa] text-sm">
-          Here's what's happening with your habits
-        </p>
-      </motion.div>
+        <p className="text-[#888888] text-sm font-light">Here's what's happening today</p>
+      </div>
 
-      {/* Today's completion bar */}
-      {(stats?.active_trackers ?? 0) > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="card p-5 mb-6"
-        >
+      {/* Today's completion banner */}
+      {activeTrackers.length > 0 && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card p-5 mb-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Flame className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-medium text-white">
-                Today's Progress
-              </span>
+              <Flame className="w-4 h-4 text-[#555555]" />
+              <span className="text-sm font-normal text-[#111111]">Today's completion</span>
             </div>
-            <span className="text-sm font-bold text-white">
-              {stats?.today_completion_percent ?? 0}%
-            </span>
+            <span className="text-sm font-medium text-[#111111]">{stats?.today_completion_percent ?? 0}%</span>
           </div>
-          <ProgressBar
-            value={stats?.today_completion_percent ?? 0}
-            color={
-              (stats?.today_completion_percent ?? 0) >= 80
-                ? 'bg-green-500'
-                : (stats?.today_completion_percent ?? 0) >= 50
-                  ? 'bg-indigo-500'
-                  : 'bg-amber-500'
-            }
-          />
+          <ProgressBar value={stats?.today_completion_percent ?? 0} />
         </motion.div>
       )}
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {statCards.map(({ label, value, icon: Icon, color, bg }, i) => (
-          <motion.div
-            key={label}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 + i * 0.05 }}
-            className="card p-4"
-          >
-            <div
-              className={`w-9 h-9 ${bg} rounded-lg flex items-center justify-center mb-3`}
-            >
-              <Icon className={`w-4 h-4 ${color}`} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+        {statCards.map(({ label, value, icon: Icon }, i) => (
+          <motion.div key={label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="card p-4">
+            <div className="w-8 h-8 bg-[#F2F2F2] rounded-xl flex items-center justify-center mb-3">
+              <Icon className="w-4 h-4 text-[#555555]" />
             </div>
-            <p className="text-2xl font-bold text-white">{value}</p>
-            <p className="text-[#52525b] text-xs mt-0.5">{label}</p>
+            <p className="text-2xl font-light text-[#111111] tracking-tighter">{value}</p>
+            <p className="text-[#888888] text-xs mt-0.5 font-light">{label}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* Active trackers + Recent notes */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Active Trackers */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Target className="w-4 h-4 text-indigo-400" /> Active Trackers
+            <h2 className="text-sm font-medium text-[#111111] flex items-center gap-2">
+              <Target className="w-4 h-4 text-[#888888]" /> Active Trackers
             </h2>
-            <Link
-              to="/trackers"
-              className="text-xs text-indigo-400 hover:text-indigo-300"
-            >
-              View all
+            <Link to="/trackers" className="text-xs text-[#888888] hover:text-[#111111] flex items-center gap-1 transition-colors">
+              View all <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
           <div className="space-y-2">
-            {activeTrackers.slice(0, 4).map((t) => (
+            {activeTrackers.slice(0, 4).map(t => (
               <Link key={t.id} to={`/trackers/${t.id}`}>
-                <div className="card p-4 hover:border-[#2a2a2a] transition-colors">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-white truncate">
-                      {t.name}
-                    </span>
-                    <Badge variant={statusVariantMap[t.status]}>
-                      {t.status}
-                    </Badge>
+                <div className="card-hover p-4">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <span className="text-sm font-normal text-[#111111] truncate">{t.name}</span>
+                    <Badge variant="active">active</Badge>
                   </div>
-                  <ProgressBar value={t.completion_percent} />
-                  <div className="flex justify-between mt-1.5">
-                    <span className="text-xs text-[#52525b]">
-                      {t.completion_percent}% complete
-                    </span>
-                    <span className="text-xs text-[#52525b]">
-                      🔥 {t.current_streak} streak
-                    </span>
+                  <ProgressBar value={t.completion_percent} className="mb-2" />
+                  <div className="flex justify-between text-xs text-[#888888]">
+                    <span>{t.completion_percent}%</span>
+                    <span>{t.current_streak} day streak</span>
                   </div>
                 </div>
               </Link>
             ))}
             {activeTrackers.length === 0 && (
               <div className="card p-6 text-center">
-                <p className="text-[#52525b] text-sm">No active trackers</p>
-                <Link
-                  to="/trackers/new"
-                  className="text-indigo-400 text-sm hover:text-indigo-300 mt-1 inline-block"
-                >
-                  Create one →
-                </Link>
+                <p className="text-[#888888] text-sm font-light mb-2">No active trackers</p>
+                <Link to="/trackers/new" className="text-sm text-[#111111] font-normal hover:underline underline-offset-2">Create one →</Link>
               </div>
             )}
           </div>
         </motion.div>
 
         {/* Recent Notes */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.35 }}
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-blue-400" /> Recent Notes
+            <h2 className="text-sm font-medium text-[#111111] flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-[#888888]" /> Recent Notes
             </h2>
-            <Link
-              to="/notes"
-              className="text-xs text-indigo-400 hover:text-indigo-300"
-            >
-              View all
+            <Link to="/notes" className="text-xs text-[#888888] hover:text-[#111111] flex items-center gap-1 transition-colors">
+              View all <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
           <div className="space-y-2">
-            {notes?.slice(0, 4).map((note) => (
+            {recentNotes.map(note => (
               <Link key={note.id} to="/notes">
-                <div className="card p-4 hover:border-[#2a2a2a] transition-colors">
+                <div className="card-hover p-4">
                   <div className="flex items-center gap-2 mb-1">
-                    {note.is_pinned && (
-                      <span className="text-amber-400 text-xs">📌</span>
-                    )}
-                    <span className="text-sm font-medium text-white truncate">
-                      {note.title}
-                    </span>
+                    {note.is_pinned && <span className="text-xs">📌</span>}
+                    <span className="text-sm font-normal text-[#111111] truncate">{note.title}</span>
                   </div>
-                  {note.content && (
-                    <p className="text-xs text-[#52525b] line-clamp-1">
-                      {note.content}
-                    </p>
-                  )}
-                  <p className="text-xs text-[#52525b] mt-1.5">
-                    {format(new Date(note.updated_at), 'MMM d, yyyy')}
-                  </p>
+                  {note.content && <p className="text-xs text-[#888888] font-light line-clamp-1 leading-relaxed">{note.content}</p>}
+                  <p className="text-xs text-[#888888] mt-1.5">{format(new Date(note.updated_at), 'MMM d, yyyy')}</p>
                 </div>
               </Link>
             ))}
-            {!notes?.length && (
+            {recentNotes.length === 0 && (
               <div className="card p-6 text-center">
-                <p className="text-[#52525b] text-sm">No notes yet</p>
-                <Link
-                  to="/notes"
-                  className="text-indigo-400 text-sm hover:text-indigo-300 mt-1 inline-block"
-                >
-                  Write your first note →
-                </Link>
+                <p className="text-[#888888] text-sm font-light mb-2">No notes yet</p>
+                <Link to="/notes" className="text-sm text-[#111111] font-normal hover:underline underline-offset-2">Write your first note →</Link>
               </div>
             )}
           </div>
         </motion.div>
       </div>
 
-      {/* Upcoming trackers */}
+      {/* Upcoming */}
       {upcomingTrackers.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-6"
-        >
-          <h2 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-amber-400" /> Upcoming
-          </h2>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-medium text-[#111111] flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-[#888888]" /> Upcoming
+            </h2>
+          </div>
           <div className="grid gap-2 sm:grid-cols-2">
-            {upcomingTrackers.slice(0, 4).map((t) => {
-              const startsIn = Math.ceil(
-                (new Date(t.start_date).getTime() - Date.now()) / 86400000,
-              );
+            {upcomingTrackers.slice(0, 4).map(t => {
+              const startsIn = Math.ceil((new Date(t.start_date).getTime() - Date.now()) / 86400000);
               return (
                 <Link key={t.id} to={`/trackers/${t.id}`}>
-                  <div className="card p-4 hover:border-[#2a2a2a] transition-colors">
-                    <div className="flex justify-between items-start">
-                      <span className="text-sm font-medium text-white">
-                        {t.name}
-                      </span>
+                  <div className="card-hover p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-normal text-[#111111]">{t.name}</span>
                       <Badge variant="upcoming">upcoming</Badge>
                     </div>
-                    <p className="text-xs text-amber-400 mt-1.5">
-                      Starts in{' '}
-                      {startsIn <= 0 ? 'today' : `${startsIn}d`}
+                    <p className="text-xs text-[#888888] font-light mt-1.5">
+                      Starts {startsIn <= 0 ? 'today' : `in ${startsIn} day${startsIn !== 1 ? 's' : ''}`}
                     </p>
                   </div>
                 </Link>

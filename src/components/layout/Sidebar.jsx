@@ -21,27 +21,26 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-60 bg-[#0d0d0d] border-r border-[#1a1a1a] flex flex-col z-40">
+    <aside className="fixed left-0 top-0 h-full w-60 bg-white border-r border-[#E5E5E5] flex flex-col z-40">
       {/* Logo */}
-      <div className="p-5 border-b border-[#1a1a1a]">
+      <div className="p-5 border-b border-[#E5E5E5]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#111111] rounded-xl flex items-center justify-center">
             <Zap className="w-4 h-4 text-white" />
           </div>
-          <span className="font-semibold text-white text-sm">HabitFlow</span>
+          <span className="font-medium text-[#111111] text-sm tracking-wide">HabitFlow</span>
         </div>
       </div>
 
-      {/* Navigation */}
+      {/* Nav */}
       <nav className="flex-1 p-3 space-y-0.5">
+        <p className="section-label px-3 mb-3 mt-1">Menu</p>
         {navItems.map(({ to, icon: Icon, label, end }) => (
           <NavLink
             key={to}
             to={to}
             end={end}
-            className={({ isActive }) =>
-              cn('sidebar-link', isActive && 'sidebar-link-active')
-            }
+            className={({ isActive }) => cn('sidebar-link', isActive && 'sidebar-link-active')}
           >
             <Icon className="w-4 h-4" />
             {label}
@@ -49,19 +48,17 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* User section */}
-      <div className="p-3 border-t border-[#1a1a1a]">
-        <div className="flex items-center gap-3 px-3 py-2.5 mb-1 rounded-lg">
-          <div className="w-7 h-7 bg-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-xs font-bold">
+      {/* User */}
+      <div className="p-3 border-t border-[#E5E5E5]">
+        <div className="flex items-center gap-3 px-3 py-2.5 mb-1 rounded-xl hover:bg-[#F7F7F7] transition-colors">
+          <div className="w-7 h-7 bg-[#111111] rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-xs font-medium">
               {user?.fullname?.[0]?.toUpperCase() ?? 'U'}
             </span>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-white text-xs font-medium truncate">
-              {user?.fullname}
-            </p>
-            <p className="text-[#52525b] text-xs truncate">@{user?.username}</p>
+            <p className="text-[#111111] text-xs font-medium truncate">{user?.fullname}</p>
+            <p className="text-[#888888] text-xs truncate">@{user?.username}</p>
           </div>
         </div>
         <button onClick={handleLogout} className="sidebar-link w-full">

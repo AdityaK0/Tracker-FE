@@ -57,8 +57,8 @@ export default function TrackersPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-white">Trackers</h1>
-          <p className="text-[#52525b] text-sm mt-0.5">
+          <h1 className="text-xl font-light text-[#111111] tracking-tighter">Trackers</h1>
+          <p className="text-[#888888] text-sm mt-0.5 font-light">
             {trackers?.length ?? 0} trackers
           </p>
         </div>
@@ -68,16 +68,16 @@ export default function TrackersPage() {
       </div>
 
       {/* Status filter tabs */}
-      <div className="flex gap-1 bg-[#111111] border border-[#1a1a1a] rounded-xl p-1 mb-6 overflow-x-auto">
+      <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-full p-1 mb-6 w-fit">
         {statuses.map((s) => (
           <button
             key={s.value}
             onClick={() => setStatusFilter(s.value)}
             className={cn(
-              'px-3 py-1.5 text-xs rounded-lg font-medium transition-colors whitespace-nowrap',
+              'px-4 py-1.5 text-xs rounded-full font-normal transition-colors whitespace-nowrap',
               statusFilter === s.value
-                ? 'bg-[#1a1a1a] text-white'
-                : 'text-[#52525b] hover:text-white',
+                ? 'bg-[#111111] text-white'
+                : 'text-[#555555] hover:text-[#111111]',
             )}
           >
             {s.label}
@@ -111,18 +111,18 @@ export default function TrackersPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="card p-5 hover:border-[#2a2a2a] transition-colors group"
+              className="card p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-300 group"
             >
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex-1 min-w-0">
                   <Link
                     to={`/trackers/${tracker.id}`}
-                    className="text-sm font-semibold text-white hover:text-indigo-400 transition-colors"
+                    className="text-sm font-medium text-[#111111] hover:text-[#555555] transition-colors"
                   >
                     {tracker.name}
                   </Link>
                   {tracker.description && (
-                    <p className="text-xs text-[#52525b] mt-0.5 truncate">
+                    <p className="text-xs text-[#888888] mt-0.5 truncate font-light">
                       {tracker.description}
                     </p>
                   )}
@@ -133,7 +133,7 @@ export default function TrackersPage() {
                   </Badge>
                   <button
                     onClick={() => handleDelete(tracker.id, tracker.name)}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 text-[#52525b] hover:text-red-400 transition-all rounded-md"
+                    className="opacity-0 group-hover:opacity-100 p-1.5 text-[#888888] hover:text-red-500 hover:bg-red-50 transition-all rounded-lg"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -142,12 +142,12 @@ export default function TrackersPage() {
 
               <ProgressBar value={tracker.completion_percent} className="mb-2" />
 
-              <div className="flex items-center justify-between text-xs text-[#52525b]">
+              <div className="flex items-center justify-between text-xs text-[#888888] font-light">
                 <span>{tracker.completion_percent}% complete</span>
-                <span>🔥 {tracker.current_streak} day streak</span>
+                <span>{tracker.current_streak} day streak</span>
               </div>
 
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#1a1a1a] text-xs text-[#52525b]">
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#E5E5E5] text-xs text-[#888888] font-light">
                 <span>
                   {tracker.duration_days} days · {tracker.habit_count} habits
                 </span>

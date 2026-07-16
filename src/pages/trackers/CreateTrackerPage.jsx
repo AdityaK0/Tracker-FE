@@ -72,21 +72,21 @@ function SortableHabit({ habit, onDelete }) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        'flex items-center gap-2 bg-[#161616] border border-[#222222] rounded-lg px-3 py-2.5 group',
+        'flex items-center gap-2 bg-white border border-[#E5E5E5] rounded-xl px-3 py-2.5 group',
         isDragging && 'opacity-50',
       )}
     >
       <button
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing text-[#52525b] hover:text-[#a1a1aa] touch-none"
+        className="cursor-grab active:cursor-grabbing text-[#888888] hover:text-[#555555] touch-none"
       >
         <GripVertical className="w-4 h-4" />
       </button>
-      <span className="flex-1 text-sm text-white">{habit.name}</span>
+      <span className="flex-1 text-sm text-[#111111]">{habit.name}</span>
       <button
         onClick={onDelete}
-        className="text-[#52525b] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="text-[#888888] hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
       >
         <X className="w-4 h-4" />
       </button>
@@ -200,8 +200,8 @@ export default function CreateTrackerPage() {
           <ChevronLeft className="w-4 h-4" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-white">Create Tracker</h1>
-          <p className="text-[#52525b] text-sm">
+          <h1 className="text-xl font-light text-[#111111] tracking-tighter">Create Tracker</h1>
+          <p className="text-[#888888] text-sm font-light">
             Step {step} of {steps.length}
           </p>
         </div>
@@ -213,12 +213,12 @@ export default function CreateTrackerPage() {
           <div key={s} className="flex items-center gap-2 flex-1">
             <div
               className={cn(
-                'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-colors',
+                'w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 transition-colors',
                 i + 1 < step
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-[#111111] text-white'
                   : i + 1 === step
-                    ? 'bg-indigo-600 text-white ring-2 ring-indigo-400/30'
-                    : 'bg-[#1a1a1a] text-[#52525b]',
+                    ? 'bg-[#111111] text-white ring-2 ring-[#111111]/20'
+                    : 'bg-[#F2F2F2] text-[#888888] border border-[#E5E5E5]',
               )}
             >
               {i + 1 < step ? <Check className="w-3.5 h-3.5" /> : i + 1}
@@ -226,7 +226,7 @@ export default function CreateTrackerPage() {
             <span
               className={cn(
                 'text-xs hidden sm:block',
-                i + 1 === step ? 'text-white font-medium' : 'text-[#52525b]',
+                i + 1 === step ? 'text-[#111111] font-medium' : 'text-[#888888]',
               )}
             >
               {s}
@@ -235,7 +235,7 @@ export default function CreateTrackerPage() {
               <div
                 className={cn(
                   'flex-1 h-px',
-                  i + 1 < step ? 'bg-indigo-600' : 'bg-[#222222]',
+                  i + 1 < step ? 'bg-[#111111]' : 'bg-[#E5E5E5]',
                 )}
               />
             )}
@@ -254,7 +254,7 @@ export default function CreateTrackerPage() {
             exit={{ opacity: 0, x: -20 }}
           >
             <div className="card p-6">
-              <h2 className="text-base font-semibold text-white mb-5">
+              <h2 className="text-base font-medium text-[#111111] mb-5">
                 Tracker Details
               </h2>
               <form
@@ -265,8 +265,8 @@ export default function CreateTrackerPage() {
                 className="space-y-4"
               >
                 <div>
-                  <label className="block text-sm font-medium text-[#a1a1aa] mb-1.5">
-                    Tracker name <span className="text-red-400">*</span>
+                  <label className="block text-sm font-normal text-[#111111] mb-1.5">
+                    Tracker name <span className="text-red-500">*</span>
                   </label>
                   <input
                     {...register('name')}
@@ -274,15 +274,15 @@ export default function CreateTrackerPage() {
                     placeholder="e.g. 75 Hard Challenge"
                   />
                   {errors.name && (
-                    <p className="text-red-400 text-xs mt-1">
+                    <p className="text-red-500 text-xs mt-1">
                       {errors.name.message}
                     </p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#a1a1aa] mb-1.5">
+                  <label className="block text-sm font-normal text-[#111111] mb-1.5">
                     Description{' '}
-                    <span className="text-[#52525b]">(optional)</span>
+                    <span className="text-[#888888]">(optional)</span>
                   </label>
                   <textarea
                     {...register('description')}
@@ -313,13 +313,13 @@ export default function CreateTrackerPage() {
             exit={{ opacity: 0, x: -20 }}
           >
             <div className="card p-6 space-y-6">
-              <h2 className="text-base font-semibold text-white">
+              <h2 className="text-base font-medium text-[#111111]">
                 Duration & Start Date
               </h2>
 
               {/* Duration picker */}
               <div>
-                <label className="block text-sm font-medium text-[#a1a1aa] mb-3">
+                <label className="block text-sm font-normal text-[#111111] mb-3">
                   Duration
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -328,10 +328,10 @@ export default function CreateTrackerPage() {
                       key={d.value}
                       onClick={() => setDuration(d.value)}
                       className={cn(
-                        'py-2.5 rounded-lg text-sm font-medium border transition-colors',
+                        'py-2.5 rounded-xl text-sm font-normal border transition-colors',
                         duration === d.value
-                          ? 'bg-indigo-600 border-indigo-600 text-white'
-                          : 'bg-[#0a0a0a] border-[#222222] text-[#a1a1aa] hover:border-[#333333]',
+                          ? 'bg-[#111111] border-[#111111] text-white'
+                          : 'bg-white border-[#E5E5E5] text-[#555555] hover:border-[#111111] hover:text-[#111111]',
                       )}
                     >
                       {d.label}
@@ -349,7 +349,7 @@ export default function CreateTrackerPage() {
                             String(Math.max(1, (parseInt(v) || 1) - 1)),
                           )
                         }
-                        className="w-9 h-9 flex items-center justify-center rounded-lg bg-[#1a1a1a] border border-[#222222] text-[#a1a1aa] hover:text-white hover:border-[#333333] transition-colors flex-shrink-0"
+                        className="w-9 h-9 flex items-center justify-center rounded-lg bg-white border border-[#E5E5E5] text-[#555555] hover:text-[#111111] hover:border-[#111111] transition-colors flex-shrink-0"
                       >
                         <ChevronDown className="w-4 h-4" />
                       </button>
@@ -379,19 +379,19 @@ export default function CreateTrackerPage() {
                             String(Math.min(365, (parseInt(v) || 0) + 1)),
                           )
                         }
-                        className="w-9 h-9 flex items-center justify-center rounded-lg bg-[#1a1a1a] border border-[#222222] text-[#a1a1aa] hover:text-white hover:border-[#333333] transition-colors flex-shrink-0"
+                        className="w-9 h-9 flex items-center justify-center rounded-lg bg-white border border-[#E5E5E5] text-[#555555] hover:text-[#111111] hover:border-[#111111] transition-colors flex-shrink-0"
                       >
                         <ChevronUp className="w-4 h-4" />
                       </button>
                     </div>
 
                     {customDuration && (
-                      <p className="text-xs text-[#52525b] text-center">
+                      <p className="text-xs text-[#888888] text-center font-light">
                         {parseInt(customDuration)} day{parseInt(customDuration) !== 1 ? 's' : ''} selected · max 365
                       </p>
                     )}
                     {customDuration && parseInt(customDuration) >= 365 && (
-                      <p className="text-xs text-amber-400 text-center">Maximum duration is 365 days</p>
+                      <p className="text-xs text-[#555555] text-center">Maximum duration is 365 days</p>
                     )}
                   </div>
                 )}
@@ -399,7 +399,7 @@ export default function CreateTrackerPage() {
 
               {/* Start date picker */}
               <div>
-                <label className="block text-sm font-medium text-[#a1a1aa] mb-3">
+                <label className="block text-sm font-normal text-[#111111] mb-3">
                   Start date
                 </label>
                 <div className="grid grid-cols-3 gap-2 mb-3">
@@ -408,10 +408,10 @@ export default function CreateTrackerPage() {
                       key={type}
                       onClick={() => setStartType(type)}
                       className={cn(
-                        'py-2.5 rounded-lg text-sm font-medium border capitalize transition-colors',
+                        'py-2.5 rounded-xl text-sm font-normal border capitalize transition-colors',
                         startType === type
-                          ? 'bg-indigo-600 border-indigo-600 text-white'
-                          : 'bg-[#0a0a0a] border-[#222222] text-[#a1a1aa] hover:border-[#333333]',
+                          ? 'bg-[#111111] border-[#111111] text-white'
+                          : 'bg-white border-[#E5E5E5] text-[#555555] hover:border-[#111111] hover:text-[#111111]',
                       )}
                     >
                       {type}
@@ -428,7 +428,7 @@ export default function CreateTrackerPage() {
                   />
                 )}
                 {startType === 'tomorrow' && (
-                  <p className="text-xs text-amber-400 mt-2">
+                  <p className="text-xs text-[#888888] mt-2 font-light">
                     Starts in ~24 hours — tracker will auto-activate
                   </p>
                 )}
@@ -471,10 +471,10 @@ export default function CreateTrackerPage() {
           >
             <div className="card p-6 space-y-4">
               <div>
-                <h2 className="text-base font-semibold text-white">
+                <h2 className="text-base font-medium text-[#111111]">
                   Add Habits
                 </h2>
-                <p className="text-[#52525b] text-sm mt-0.5">
+                <p className="text-[#888888] text-sm mt-0.5 font-light">
                   These become the columns in your tracker table
                 </p>
               </div>
@@ -525,8 +525,8 @@ export default function CreateTrackerPage() {
                   </SortableContext>
                 </DndContext>
               ) : (
-                <div className="border border-dashed border-[#222222] rounded-lg p-6 text-center">
-                  <p className="text-[#52525b] text-sm">
+                <div className="border border-dashed border-[#E5E5E5] rounded-xl p-6 text-center">
+                  <p className="text-[#888888] text-sm font-light">
                     Add at least one habit above
                   </p>
                 </div>
@@ -560,40 +560,40 @@ export default function CreateTrackerPage() {
             exit={{ opacity: 0, x: -20 }}
           >
             <div className="card p-6 space-y-5">
-              <h2 className="text-base font-semibold text-white">
+              <h2 className="text-base font-medium text-[#111111]">
                 Review & Create
               </h2>
 
-              <div className="space-y-0 divide-y divide-[#1a1a1a]">
+              <div className="space-y-0 divide-y divide-[#E5E5E5]">
                 <div className="flex justify-between py-3">
-                  <span className="text-sm text-[#a1a1aa]">Name</span>
-                  <span className="text-sm text-white font-medium">
+                  <span className="text-sm text-[#888888]">Name</span>
+                  <span className="text-sm text-[#111111] font-medium">
                     {step1Data.name}
                   </span>
                 </div>
                 {step1Data.description && (
                   <div className="flex justify-between py-3">
-                    <span className="text-sm text-[#a1a1aa]">Description</span>
-                    <span className="text-sm text-white text-right max-w-[60%]">
+                    <span className="text-sm text-[#888888]">Description</span>
+                    <span className="text-sm text-[#555555] text-right max-w-[60%] font-light">
                       {step1Data.description}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between py-3">
-                  <span className="text-sm text-[#a1a1aa]">Duration</span>
-                  <span className="text-sm text-white">
+                  <span className="text-sm text-[#888888]">Duration</span>
+                  <span className="text-sm text-[#111111]">
                     {getActualDuration()} days
                   </span>
                 </div>
                 <div className="flex justify-between py-3">
-                  <span className="text-sm text-[#a1a1aa]">Start date</span>
-                  <span className="text-sm text-white">
+                  <span className="text-sm text-[#888888]">Start date</span>
+                  <span className="text-sm text-[#111111]">
                     {format(new Date(getStartDate()), 'MMM d, yyyy')}
                   </span>
                 </div>
                 <div className="flex justify-between py-3">
-                  <span className="text-sm text-[#a1a1aa]">End date</span>
-                  <span className="text-sm text-white">
+                  <span className="text-sm text-[#888888]">End date</span>
+                  <span className="text-sm text-[#111111]">
                     {format(
                       addDays(
                         new Date(getStartDate()),
@@ -604,14 +604,14 @@ export default function CreateTrackerPage() {
                   </span>
                 </div>
                 <div className="py-3">
-                  <span className="text-sm text-[#a1a1aa] block mb-2">
+                  <span className="text-sm text-[#888888] block mb-2">
                     Habits ({habits.length})
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {habits.map((h) => (
                       <span
                         key={h.id}
-                        className="px-2.5 py-1 bg-[#1a1a1a] text-[#a1a1aa] rounded-md text-xs"
+                        className="px-2.5 py-1 bg-[#F2F2F2] text-[#555555] border border-[#E5E5E5] rounded-full text-xs font-light"
                       >
                         {h.name}
                       </span>

@@ -5,89 +5,72 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    box-sizing: border-box;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: #0a0a0a;
-    color: #ffffff;
+    background-color: #F7F7F7;
+    color: #111111;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #111111;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #333333;
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #444444;
-  }
-
-  ::selection {
-    background: rgba(99, 102, 241, 0.3);
-  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #E5E5E5; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #D0D0D0; }
+  ::selection { background: rgba(17,17,17,0.1); }
 }
 
 @layer components {
+  /* Cards */
   .card {
-    @apply bg-[#111111] border border-[#1a1a1a] rounded-xl;
+    @apply bg-white border border-[#E5E5E5] rounded-2xl shadow-card;
+  }
+  .card-hover {
+    @apply card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover;
   }
 
-  .card-elevated {
-    @apply bg-[#161616] border border-[#222222] rounded-xl;
+  /* Buttons */
+  .btn-primary {
+    @apply bg-[#111111] text-white font-normal rounded-full px-6 py-2.5 text-sm
+           transition-all duration-300 hover:bg-[#333333] hover:-translate-y-px
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0;
+  }
+  .btn-secondary {
+    @apply bg-white text-[#111111] font-normal rounded-full px-6 py-2.5 text-sm
+           border border-[#E5E5E5] transition-all duration-300
+           hover:bg-[#F7F7F7] hover:-translate-y-px
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2]
+           font-normal rounded-xl px-3 py-2 text-sm transition-all duration-200;
+  }
+  .btn-danger {
+    @apply bg-red-500 text-white font-normal rounded-full px-6 py-2.5 text-sm
+           transition-all duration-300 hover:bg-red-600;
   }
 
+  /* Inputs */
   .input-base {
-    @apply w-full bg-[#0a0a0a] border border-[#222222] rounded-lg px-4 py-2.5
-           text-white placeholder-[#52525b] text-sm
-           focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500
+    @apply w-full bg-white border border-[#E5E5E5] rounded-lg px-4 py-2.5
+           text-[#111111] placeholder-[#888888] text-sm
+           focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111]
            transition-colors duration-200;
   }
 
-  .btn-primary {
-    @apply bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg
-           px-4 py-2.5 text-sm transition-all duration-200
-           disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .btn-secondary {
-    @apply bg-[#1a1a1a] hover:bg-[#222222] text-white border border-[#222222]
-           font-medium rounded-lg px-4 py-2.5 text-sm transition-all duration-200;
-  }
-
-  .btn-ghost {
-    @apply hover:bg-[#1a1a1a] text-[#a1a1aa] hover:text-white
-           font-medium rounded-lg px-3 py-2 text-sm transition-all duration-200;
-  }
-
-  .btn-danger {
-    @apply bg-red-600 hover:bg-red-500 text-white font-medium rounded-lg
-           px-4 py-2.5 text-sm transition-all duration-200;
-  }
-
+  /* Sidebar */
   .sidebar-link {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-           text-[#a1a1aa] hover:text-white hover:bg-[#1a1a1a]
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-normal
+           text-[#555555] hover:text-[#111111] hover:bg-[#F2F2F2]
            transition-all duration-200 cursor-pointer;
   }
-
   .sidebar-link-active {
-    @apply text-white bg-[#1a1a1a];
+    @apply text-[#111111] bg-[#F2F2F2] font-medium;
+  }
+
+  /* Section labels */
+  .section-label {
+    @apply text-xs font-medium text-[#888888] uppercase tracking-wider;
   }
 }

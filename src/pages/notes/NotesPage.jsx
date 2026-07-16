@@ -25,20 +25,20 @@ function NoteCard({ note, onEdit, onPin, onArchive, onDelete }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="card p-4 group hover:border-[#2a2a2a] transition-colors flex flex-col"
+      className="bg-white border border-[#E5E5E5] rounded-2xl shadow-card p-4 group hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-300 flex flex-col"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="text-sm font-semibold text-white flex-1 leading-snug">
+        <h3 className="text-sm font-medium text-[#111111] flex-1 leading-snug">
           {note.title}
         </h3>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
           <button
             onClick={() => onPin(note)}
             className={cn(
-              'p-1.5 rounded-md transition-colors',
+              'p-1.5 rounded-lg transition-colors',
               note.is_pinned
-                ? 'text-amber-400'
-                : 'text-[#52525b] hover:text-white',
+                ? 'text-[#111111]'
+                : 'text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2]',
             )}
             title={note.is_pinned ? 'Unpin' : 'Pin'}
           >
@@ -46,20 +46,20 @@ function NoteCard({ note, onEdit, onPin, onArchive, onDelete }) {
           </button>
           <button
             onClick={() => onEdit(note)}
-            className="p-1.5 rounded-md text-[#52525b] hover:text-white transition-colors"
+            className="p-1.5 rounded-lg text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2] transition-colors"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => onArchive(note)}
-            className="p-1.5 rounded-md text-[#52525b] hover:text-white transition-colors"
+            className="p-1.5 rounded-lg text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2] transition-colors"
             title={note.is_archived ? 'Unarchive' : 'Archive'}
           >
             <Archive className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => onDelete(note)}
-            className="p-1.5 rounded-md text-[#52525b] hover:text-red-400 transition-colors"
+            className="p-1.5 rounded-lg text-[#888888] hover:text-red-500 hover:bg-red-50 transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -67,16 +67,16 @@ function NoteCard({ note, onEdit, onPin, onArchive, onDelete }) {
       </div>
 
       {note.content && (
-        <p className="text-xs text-[#a1a1aa] line-clamp-3 flex-1 leading-relaxed mb-3">
+        <p className="text-xs text-[#888888] line-clamp-3 flex-1 leading-relaxed mb-3 font-light">
           {note.content}
         </p>
       )}
 
-      <div className="flex items-center justify-between mt-auto pt-2 border-t border-[#1a1a1a]">
-        <span className="text-xs text-[#52525b]">
+      <div className="flex items-center justify-between mt-auto pt-2 border-t border-[#E5E5E5]">
+        <span className="text-xs text-[#888888] font-light">
           {format(new Date(note.updated_at), 'MMM d, yyyy')}
         </span>
-        {note.is_pinned && <Pin className="w-3 h-3 text-amber-400" />}
+        {note.is_pinned && <Pin className="w-3 h-3 text-[#555555]" />}
       </div>
     </motion.div>
   );
@@ -199,8 +199,8 @@ export default function NotesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-white">Notes</h1>
-          <p className="text-[#52525b] text-sm mt-0.5">
+          <h1 className="text-xl font-light text-[#111111] tracking-tighter">Notes</h1>
+          <p className="text-[#888888] text-sm mt-0.5 font-light">
             {notes?.length ?? 0} {showArchived ? 'archived ' : ''}notes
           </p>
         </div>
@@ -215,7 +215,7 @@ export default function NotesPage() {
       {/* Search + filter */}
       <div className="flex items-center gap-3 mb-6">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#52525b]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#888888]" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -223,16 +223,16 @@ export default function NotesPage() {
             placeholder="Search notes..."
           />
         </div>
-        <div className="flex gap-1 bg-[#111111] border border-[#1a1a1a] rounded-lg p-1">
+        <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-full p-1">
           {[false, true].map((arch) => (
             <button
               key={String(arch)}
               onClick={() => setShowArchived(arch)}
               className={cn(
-                'px-3 py-1.5 text-xs rounded-md font-medium transition-colors',
+                'px-4 py-1.5 text-xs rounded-full font-normal transition-colors',
                 showArchived === arch
-                  ? 'bg-[#1a1a1a] text-white'
-                  : 'text-[#52525b] hover:text-white',
+                  ? 'bg-[#111111] text-white'
+                  : 'text-[#555555] hover:text-[#111111]',
               )}
             >
               {arch ? 'Archived' : 'All'}
@@ -270,7 +270,7 @@ export default function NotesPage() {
           {/* Pinned section */}
           {pinnedNotes.length > 0 && (
             <div className="mb-6">
-              <p className="text-xs font-medium text-[#52525b] uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <p className="section-label mb-3 flex items-center gap-1.5">
                 <Pin className="w-3 h-3" /> Pinned
               </p>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -294,9 +294,7 @@ export default function NotesPage() {
           {unpinnedNotes.length > 0 && (
             <div>
               {pinnedNotes.length > 0 && (
-                <p className="text-xs font-medium text-[#52525b] uppercase tracking-wider mb-3">
-                  Others
-                </p>
+                <p className="section-label mb-3">Others</p>
               )}
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AnimatePresence>
@@ -328,11 +326,11 @@ export default function NotesPage() {
           <div>
             <input
               {...register('title')}
-              className="input-base text-base font-semibold"
+              className="input-base text-base font-medium"
               placeholder="Note title..."
             />
             {errors.title && (
-              <p className="text-red-400 text-xs mt-1">
+              <p className="text-red-500 text-xs mt-1">
                 {errors.title.message}
               </p>
             )}
