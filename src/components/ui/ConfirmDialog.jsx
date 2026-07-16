@@ -28,7 +28,7 @@ export default function ConfirmDialog({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/25 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -37,7 +37,7 @@ export default function ConfirmDialog({
 
           {/* Dialog */}
           <motion.div
-            className="relative w-full max-w-sm bg-white border border-[#E5E5E5] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] z-10"
+            className="relative w-full max-w-sm bg-white border border-[#E5E5E5] rounded-md z-10"
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
@@ -46,30 +46,30 @@ export default function ConfirmDialog({
             {/* Close */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[#F2F2F2] text-[#888888] hover:text-[#111111] transition-colors"
+              className="absolute top-3.5 right-3.5 w-6 h-6 flex items-center justify-center rounded-md hover:bg-[#F2F2F2] text-[#888888] hover:text-[#111111] transition-colors"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
 
-            <div className="p-6">
+            <div className="p-5">
               {/* Icon */}
               <div className={cn(
-                'w-11 h-11 rounded-2xl flex items-center justify-center mb-4',
+                'w-9 h-9 rounded-md flex items-center justify-center mb-3',
                 isDanger ? 'bg-red-50' : 'bg-amber-50',
               )}>
                 {isDanger
-                  ? <Trash2 className="w-5 h-5 text-red-500" />
-                  : <AlertTriangle className="w-5 h-5 text-amber-500" />}
+                  ? <Trash2 className="w-4 h-4 text-red-500" />
+                  : <AlertTriangle className="w-4 h-4 text-amber-500" />}
               </div>
 
               {/* Text */}
-              <h3 className="text-base font-medium text-[#111111] mb-1.5">{title}</h3>
+              <h3 className="text-sm font-semibold text-[#111111] mb-1">{title}</h3>
               {description && (
-                <p className="text-sm text-[#555555] font-light leading-relaxed">{description}</p>
+                <p className="text-sm text-[#555555] leading-relaxed">{description}</p>
               )}
 
               {/* Actions */}
-              <div className="flex gap-2 mt-6">
+              <div className="flex gap-2 mt-5">
                 <button
                   onClick={onClose}
                   disabled={isLoading}
@@ -81,11 +81,11 @@ export default function ConfirmDialog({
                   onClick={() => { onConfirm(); }}
                   disabled={isLoading}
                   className={cn(
-                    'flex-1 font-normal rounded-full px-6 py-2.5 text-sm transition-all duration-300',
+                    'flex-1 inline-flex items-center justify-center font-medium rounded-md px-3 py-1.5 text-sm transition-colors duration-150',
                     isDanger
-                      ? 'bg-red-500 hover:bg-red-600 text-white'
+                      ? 'bg-red-600 hover:bg-red-700 text-white'
                       : 'bg-amber-500 hover:bg-amber-600 text-white',
-                    isLoading && 'opacity-50 cursor-not-allowed',
+                    isLoading && 'opacity-40 cursor-not-allowed',
                   )}
                 >
                   {isLoading ? 'Deleting…' : confirmLabel}

@@ -36,17 +36,17 @@ export default function RegisterPage() {
       <motion.div className="w-full max-w-sm" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
 
         <div className="flex justify-center mb-10">
-          <div className="w-11 h-11 bg-[#111111] rounded-2xl flex items-center justify-center">
-            <Zap className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 bg-[#111111] rounded-md flex items-center justify-center">
+            <Zap className="w-4 h-4 text-white" />
           </div>
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-light text-[#111111] tracking-tighter mb-2">Create account</h1>
+          <h1 className="text-lg font-semibold text-[#111111] mb-2">Create account</h1>
           <p className="text-[#888888] text-sm font-light">Start building better habits</p>
         </div>
 
-        <div className="bg-white border border-[#E5E5E5] rounded-2xl p-6 shadow-card">
+        <div className="bg-white border border-[#E5E5E5] rounded-md p-5">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {[
               { name: 'username', label: 'Username', placeholder: 'your_username', type: 'text' },

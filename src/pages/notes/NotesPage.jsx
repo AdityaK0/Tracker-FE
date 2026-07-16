@@ -26,17 +26,17 @@ function NoteCard({ note, onEdit, onPin, onArchive, onDelete }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-white border border-[#E5E5E5] rounded-2xl shadow-card p-4 group hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-300 flex flex-col"
+      className="card p-4 group hover:bg-[#FAFAFA] hover:border-[#D0D0D0] transition-colors duration-150 flex flex-col"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <h3 className="text-sm font-medium text-[#111111] flex-1 leading-snug">
           {note.title}
         </h3>
-        <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
+        <div className="flex items-center gap-1 flex-shrink-0">
           <button
             onClick={() => onPin(note)}
             className={cn(
-              'p-1.5 rounded-lg transition-colors',
+              'p-1 rounded-sm transition-colors',
               note.is_pinned
                 ? 'text-[#111111]'
                 : 'text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2]',
@@ -47,20 +47,20 @@ function NoteCard({ note, onEdit, onPin, onArchive, onDelete }) {
           </button>
           <button
             onClick={() => onEdit(note)}
-            className="p-1.5 rounded-lg text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2] transition-colors"
+            className="p-1 rounded-sm text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2] transition-colors"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => onArchive(note)}
-            className="p-1.5 rounded-lg text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2] transition-colors"
+            className="p-1 rounded-sm text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2] transition-colors"
             title={note.is_archived ? 'Unarchive' : 'Archive'}
           >
             <Archive className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => onDelete(note)}
-            className="p-1.5 rounded-lg text-[#888888] hover:text-red-500 hover:bg-red-50 transition-colors"
+            className="p-1 rounded-sm text-[#888888] hover:text-red-500 hover:bg-red-50 transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -199,8 +199,8 @@ export default function NotesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 gap-3">
         <div className="min-w-0">
-          <h1 className="text-xl font-light text-[#111111] tracking-tighter">Notes</h1>
-          <p className="text-[#888888] text-sm mt-0.5 font-light">
+          <h1 className="page-title">Notes</h1>
+          <p className="text-xs text-[#888888] mt-0.5">
             {notes?.length ?? 0} {showArchived ? 'archived ' : ''}notes
           </p>
         </div>
@@ -225,13 +225,13 @@ export default function NotesPage() {
             placeholder="Search notes..."
           />
         </div>
-        <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-full p-1 w-fit">
+        <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-md p-1 w-fit">
           {[false, true].map((arch) => (
             <button
               key={String(arch)}
               onClick={() => setShowArchived(arch)}
               className={cn(
-                'px-4 py-1.5 text-xs rounded-full font-normal transition-colors',
+                'px-3 py-1 text-xs rounded-sm font-medium transition-colors',
                 showArchived === arch
                   ? 'bg-[#111111] text-white'
                   : 'text-[#555555] hover:text-[#111111]',

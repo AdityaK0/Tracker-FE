@@ -43,30 +43,33 @@ export default function Sidebar({ onClose = () => {} }) {
 
   return (
     <aside className="h-full w-full bg-white border-r border-[#E5E5E5] flex flex-col">
-      {/* Logo */}
-      <div className="p-5 border-b border-[#E5E5E5]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-[#111111] rounded-xl flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
+      {/* Logo — compact */}
+      <div className="px-4 py-3 border-b border-[#E5E5E5]">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-[#111111] rounded-md flex items-center justify-center">
+            <Zap className="w-3.5 h-3.5 text-white" />
           </div>
-          <span className="font-medium text-[#111111] text-sm tracking-wide">HabitFlow</span>
+          <span className="text-sm font-semibold text-[#111111]">HabitFlow</span>
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 p-3 space-y-0.5">
-        <p className="text-xs font-medium text-[#888888] uppercase tracking-wider px-3 mb-3 mt-1">Menu</p>
+      {/* Search */}
+      <div className="px-3 py-2 border-b border-[#E5E5E5]">
         <button
           onClick={() => {
             window.dispatchEvent(new CustomEvent('open-search'));
             onClose();
           }}
-          className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2] w-full transition-all mb-3"
+          className="w-full flex items-center gap-2 px-2.5 py-1.5 text-sm text-[#888888] bg-[#F7F7F7] border border-[#E5E5E5] rounded-md hover:border-[#CCCCCC] transition-colors"
         >
-          <Search className="w-4 h-4" />
-          <span className="flex-1 text-left">Search</span>
-          <span className="text-xs bg-[#F2F2F2] px-1.5 py-0.5 rounded-md font-mono">⌘K</span>
+          <Search className="w-3.5 h-3.5" />
+          <span className="flex-1 text-left text-xs">Search...</span>
+          <span className="text-[10px] text-[#AAAAAA] font-mono">⌘K</span>
         </button>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-2 py-2 space-y-0.5">
         {navItems.map(({ to, icon: Icon, label, end }) => (
           <NavLink
             key={to}
@@ -74,18 +77,17 @@ export default function Sidebar({ onClose = () => {} }) {
             end={end}
             onClick={onClose}
             className={({ isActive }) =>
-              cn('flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-normal text-[#555555] hover:text-[#111111] hover:bg-[#F2F2F2] transition-all duration-200 cursor-pointer',
-                isActive && 'text-[#111111] bg-[#F2F2F2] font-medium')
+              cn('sidebar-link', isActive && 'sidebar-link-active')
             }
           >
-            <Icon className="w-4 h-4" />
+            <Icon className="w-4 h-4 flex-shrink-0" />
             {label}
           </NavLink>
         ))}
       </nav>
 
-      {/* User section with dropdown */}
-      <div className="p-3 border-t border-[#E5E5E5]" ref={dropdownRef}>
+      {/* User — compact bottom section */}
+      <div className="border-t border-[#E5E5E5] px-2 py-2" ref={dropdownRef}>
         <AnimatePresence>
           {dropdownOpen && (
             <motion.div
@@ -93,35 +95,35 @@ export default function Sidebar({ onClose = () => {} }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 6, scale: 0.97 }}
               transition={{ duration: 0.15 }}
-              className="mb-2 bg-white border border-[#E5E5E5] rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.08)] overflow-hidden"
+              className="mb-1 bg-white border border-[#E5E5E5] rounded-md overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.06)]"
             >
               {/* Profile header inside dropdown */}
-              <div className="px-3 py-3 border-b border-[#F2F2F2]">
+              <div className="px-3 py-2.5 border-b border-[#F2F2F2]">
                 <p className="text-xs font-medium text-[#111111] truncate">{displayName}</p>
                 <p className="text-xs text-[#888888] truncate">{user?.email}</p>
               </div>
 
-              <div className="p-1.5 space-y-0.5">
+              <div className="p-1 space-y-0.5">
                 <button
                   onClick={() => { setDropdownOpen(false); onClose(); navigate('/profile'); }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-[#555555] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors text-left"
+                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-[#555555] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors text-left"
                 >
                   <User className="w-3.5 h-3.5" />
                   View Profile
                 </button>
                 <button
                   onClick={() => { setDropdownOpen(false); onClose(); navigate('/profile?tab=settings'); }}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-[#555555] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors text-left"
+                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-[#555555] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors text-left"
                 >
                   <Settings className="w-3.5 h-3.5" />
                   Account Settings
                 </button>
               </div>
 
-              <div className="border-t border-[#F2F2F2] p-1.5">
+              <div className="border-t border-[#F2F2F2] p-1">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors text-left"
+                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors text-left"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   Logout
@@ -135,22 +137,22 @@ export default function Sidebar({ onClose = () => {} }) {
         <button
           onClick={() => setDropdownOpen(o => !o)}
           className={cn(
-            'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors',
+            'w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-colors',
             dropdownOpen ? 'bg-[#F2F2F2]' : 'hover:bg-[#F7F7F7]'
           )}
         >
           {avatarUrl ? (
-            <img src={avatarUrl} alt="avatar" className="w-7 h-7 rounded-full object-cover flex-shrink-0 border border-[#E5E5E5]" />
+            <img src={avatarUrl} alt="avatar" className="w-6 h-6 rounded-full object-cover flex-shrink-0 border border-[#E5E5E5]" />
           ) : (
-            <div className="w-7 h-7 bg-[#111111] rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-xs font-medium">{initials}</span>
+            <div className="w-6 h-6 bg-[#111111] rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-[10px] font-medium">{initials}</span>
             </div>
           )}
           <div className="min-w-0 flex-1 text-left">
             <p className="text-[#111111] text-xs font-medium truncate">{displayName}</p>
-            <p className="text-[#888888] text-xs truncate">@{user?.username}</p>
+            <p className="text-[#888888] text-[11px] truncate">@{user?.username}</p>
           </div>
-          <ChevronUp className={cn('w-3.5 h-3.5 text-[#888888] transition-transform flex-shrink-0', dropdownOpen && 'rotate-180')} />
+          <ChevronUp className={cn('w-3 h-3 text-[#AAAAAA] transition-transform flex-shrink-0', dropdownOpen && 'rotate-180')} />
         </button>
       </div>
     </aside>

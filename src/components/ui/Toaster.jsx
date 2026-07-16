@@ -87,8 +87,8 @@ function ToastItem({ toast: t, onDismiss }) {
       exit={{    opacity: 0, x: 40, scale: 0.96 }}
       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        'relative w-80 bg-white border border-[#E5E5E5] border-l-[3px] rounded-xl overflow-hidden',
-        'shadow-[0_4px_16px_rgba(0,0,0,0.08),0_1px_4px_rgba(0,0,0,0.04)]',
+        'relative w-80 bg-white border border-[#E5E5E5] border-l-[3px] rounded-md overflow-hidden',
+        'shadow-[0_2px_8px_rgba(0,0,0,0.08)]',
         borderClass,
       )}
     >

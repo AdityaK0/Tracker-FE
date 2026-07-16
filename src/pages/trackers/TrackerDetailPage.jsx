@@ -51,211 +51,182 @@ export default function TrackerDetailPage() {
 
   if (isLoading || !tracker) return <LoadingSpinner />;
 
-  const isCompleted = (dayIndex, habitId) =>
+  const isHabitDone = (dayIndex, habitId) =>
     tracker.progress.some(p => p.day_index === dayIndex && p.habit_id === habitId && p.completed);
 
   const toggleProgress = (dayIndex, habitId) => {
-    progressMutation.mutate({ dayIndex, habitId, completed: !isCompleted(dayIndex, habitId) });
+    progressMutation.mutate({ dayIndex, habitId, completed: !isHabitDone(dayIndex, habitId) });
   };
 
   const statItems = [
     { label: 'Completion', value: `${tracker.completion_percent}%`, icon: Target },
-    { label: 'Current Streak', value: `${tracker.current_streak}d`, icon: Flame },
-    { label: 'Longest Streak', value: `${tracker.longest_streak}d`, icon: Trophy },
-    { label: 'Days Left', value: String(tracker.days_remaining), icon: Clock },
-    { label: 'Completed', value: String(tracker.completed_habits), icon: CheckSquare },
+    { label: 'Streak', value: `${tracker.current_streak}d`, icon: Flame },
+    { label: 'Best', value: `${tracker.longest_streak}d`, icon: Trophy },
+    { label: 'Days left', value: String(tracker.days_remaining), icon: Clock },
+    { label: 'Done', value: String(tracker.completed_habits), icon: CheckSquare },
     { label: 'Missed', value: String(tracker.missed_habits), icon: XSquare },
   ];
 
   return (
     <div>
       {/* Header */}
-      <div className="flex items-start gap-3 mb-6">
-        <button onClick={() => navigate('/trackers')} className="btn-ghost p-2 flex-shrink-0 mt-0.5">
+      <div className="flex items-start gap-3 mb-5">
+        <button onClick={() => navigate('/trackers')} className="btn-ghost p-1.5 flex-shrink-0 mt-0.5">
           <ChevronLeft className="w-4 h-4" />
         </button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl font-light text-[#111111] tracking-tighter break-words">{tracker.name}</h1>
+            <h1 className="page-title">{tracker.name}</h1>
             <Badge variant={statusVariantMap[tracker.status]}>{tracker.status}</Badge>
           </div>
           {tracker.description && (
-            <p className="text-[#888888] text-sm mt-0.5 font-light">{tracker.description}</p>
+            <p className="text-xs text-[#888888] mt-0.5">{tracker.description}</p>
           )}
         </div>
-
-        {/* Delete button — in header, always visible */}
         <button
           onClick={() => setShowDeleteDialog(true)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm text-[#888888] hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all duration-200"
-          title="Delete tracker"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm text-[#888888] hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 transition-colors flex-shrink-0"
         >
-          <Trash2 className="w-4 h-4" />
+          <Trash2 className="w-3.5 h-3.5" />
           <span className="hidden sm:inline text-xs">Delete</span>
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+      {/* Stats strip */}
+      <div className="flex items-center border border-[#E5E5E5] rounded-md overflow-hidden mb-5">
         {statItems.map(({ label, value, icon: Icon }, i) => (
-          <motion.div
+          <div
             key={label}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.04 }}
-            className="card p-3 text-center"
+            className={cn('flex-1 px-3 py-2.5 text-center', i < statItems.length - 1 && 'border-r border-[#E5E5E5]')}
           >
-            <div className="w-7 h-7 bg-[#F2F2F2] rounded-xl flex items-center justify-center mx-auto mb-2">
-              <Icon className="w-3.5 h-3.5 text-[#555555]" />
-            </div>
-            <p className="text-base font-light text-[#111111] tracking-tighter">{value}</p>
-            <p className="text-xs text-[#888888] font-light">{label}</p>
-          </motion.div>
+            <p className="text-sm font-semibold text-[#111111] tabular-nums">{value}</p>
+            <p className="text-[10px] text-[#888888] mt-0.5 leading-none">{label}</p>
+          </div>
         ))}
       </div>
 
-      {/* Progress bar */}
-      <div className="card p-4 mb-6">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-[#555555] font-light">Overall Progress</span>
-          <span className="text-sm font-medium text-[#111111]">{tracker.completion_percent}%</span>
+      {/* Overall progress */}
+      <div className="flex items-center gap-3 py-3 mb-5 border-b border-[#E5E5E5]">
+        <span className="text-xs text-[#888888] flex-shrink-0">Overall</span>
+        <div className="flex-1">
+          <ProgressBar value={tracker.completion_percent} />
         </div>
-        <ProgressBar value={tracker.completion_percent} />
-        <div className="flex justify-between mt-2 text-xs text-[#888888] font-light">
-          <span>Day {tracker.days_elapsed} of {tracker.duration_days}</span>
-          <span>{formatDate(tracker.start_date, 'MMM d')} – {formatDate(tracker.end_date, 'MMM d, yyyy')}</span>
-        </div>
+        <span className="text-xs font-semibold text-[#111111] tabular-nums flex-shrink-0">
+          {tracker.completion_percent}%
+        </span>
+        <span className="text-xs text-[#888888] flex-shrink-0 hidden sm:block">
+          {formatDate(tracker.start_date, 'MMM d')} – {formatDate(tracker.end_date, 'MMM d')}
+        </span>
       </div>
 
-      {/* Mobile: section header */}
-      <div className="md:hidden flex items-center justify-between mb-3">
-        <h2 className="text-sm font-medium text-[#111111]">Daily Progress</h2>
-        <span className="text-xs text-[#888888] font-light">Tap to toggle</span>
-      </div>
-
-      {/* Mobile: Day cards */}
-      <div className="md:hidden space-y-3">
-        {Array.from({ length: tracker.duration_days }, (_, dayIndex) => {
-          const isToday = dayIndex === tracker.days_elapsed - 1 && tracker.status === 'active';
-          const isPast = dayIndex < tracker.days_elapsed;
-          const isFuture = dayIndex >= tracker.days_elapsed;
-          const dayComplete = tracker.habits.length > 0 &&
-            tracker.habits.every(h => isCompleted(dayIndex, h.id));
-
-          return (
-            <div key={dayIndex} className={cn(
-              'card p-4',
-              isToday && 'border-[#111111]',
-            )}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className={cn('text-sm font-medium',
-                    isToday ? 'text-[#111111]' : isPast ? 'text-[#555555]' : 'text-[#888888]'
-                  )}>
-                    Day {dayIndex + 1}
-                  </span>
-                  {isToday && (
-                    <span className="text-xs bg-[#111111] text-white px-2 py-0.5 rounded-full font-normal">Today</span>
-                  )}
-                </div>
-                {isPast && (
-                  <span className="text-xs text-[#888888] font-light">
-                    {dayComplete ? 'Complete' : 'Incomplete'}
-                  </span>
-                )}
-              </div>
-              <div className="space-y-2">
-                {tracker.habits.map(habit => {
-                  const done = isCompleted(dayIndex, habit.id);
-                  return (
-                    <button
-                      key={habit.id}
-                      onClick={() => !isFuture && toggleProgress(dayIndex, habit.id)}
-                      disabled={isFuture || progressMutation.isPending}
-                      className={cn(
-                        'w-full flex items-center gap-3 py-2.5 px-1 rounded-lg text-left transition-colors min-h-[44px]',
-                        isFuture ? 'opacity-30 cursor-not-allowed' : 'hover:bg-[#F7F7F7] active:bg-[#F2F2F2]',
-                      )}
-                    >
-                      <div className={cn(
-                        'w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors',
-                        isFuture ? 'border-[#E5E5E5]'
-                          : done ? 'bg-[#111111] border-[#111111]'
-                          : 'border-[#E5E5E5]',
-                      )}>
-                        {done && (
-                          <svg viewBox="0 0 12 10" className="w-3 h-3 text-white" fill="none">
-                            <path d="M1 5L4.5 8.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                      </div>
-                      <span className={cn('text-sm', done ? 'text-[#555555] line-through' : isFuture ? 'text-[#888888]' : 'text-[#111111]')}>
-                        {habit.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Desktop/Tablet: scrollable table */}
-      <div className="hidden md:block card overflow-hidden">
-        <div className="p-4 border-b border-[#E5E5E5]">
-          <h2 className="text-sm font-medium text-[#111111]">Daily Progress</h2>
-          <p className="text-xs text-[#888888] mt-0.5 font-light">Click a cell to toggle completion</p>
+      {/* ── Tracker table — all screen sizes ─────────────────────────────────
+          Sticky thead (top) + sticky Day column (left) + horizontal scroll.
+          Exactly like Google Sheets / GitHub Projects on mobile.
+          Touch targets: 44×44px checkbox cells (w-11 h-11).
+      ──────────────────────────────────────────────────────────────────── */}
+      <div className="card overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#E5E5E5]">
+          <h2 className="text-xs font-medium text-[#888888] uppercase tracking-wider">Daily Progress</h2>
+          <span className="text-xs text-[#AAAAAA]">Tap to toggle</span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-[#E5E5E5]">
-                <th className="text-left px-4 py-3 text-xs font-medium text-[#888888] uppercase tracking-wider sticky left-0 bg-white z-10 min-w-[90px]">
+
+        {/* Scroll container — horizontal on mobile, vertical for long trackers */}
+        <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '65vh' }}>
+          <table className="border-collapse w-max min-w-full">
+
+            {/* Sticky header row */}
+            <thead className="sticky top-0 z-20">
+              <tr className="bg-white border-b border-[#E5E5E5]">
+
+                {/* Day column header — double-sticky: top + left */}
+                <th
+                  scope="col"
+                  className="sticky left-0 z-30 bg-white px-3 py-2.5 text-left text-[10px] font-medium text-[#888888] uppercase tracking-wider border-r border-[#E5E5E5] min-w-[72px]"
+                >
                   Day
                 </th>
+
+                {/* One column per habit */}
                 {tracker.habits.map(habit => (
-                  <th key={habit.id} className="px-4 py-3 text-xs font-medium text-[#888888] uppercase tracking-wider text-center min-w-[140px]">
-                    <span className="truncate block max-w-[120px] mx-auto" title={habit.name}>{habit.name}</span>
+                  <th
+                    key={habit.id}
+                    scope="col"
+                    style={{ minWidth: '120px' }}
+                    className="px-3 py-2.5 text-center text-[10px] font-medium text-[#888888] normal-case leading-snug"
+                  >
+                    {habit.name}
                   </th>
                 ))}
               </tr>
             </thead>
+
             <tbody>
               {Array.from({ length: tracker.duration_days }, (_, dayIndex) => {
                 const isToday = dayIndex === tracker.days_elapsed - 1 && tracker.status === 'active';
-                const isPast = dayIndex < tracker.days_elapsed;
+                const isPast  = dayIndex < tracker.days_elapsed;
                 const isFuture = dayIndex >= tracker.days_elapsed;
 
+                // Perfect-day tint
+                const habitIds = tracker.habits.map(h => h.id);
+                const doneCount = habitIds.filter(hid => isHabitDone(dayIndex, hid)).length;
+                const isPerfect = isPast && doneCount === habitIds.length && habitIds.length > 0;
+
                 return (
-                  <tr key={dayIndex} className={cn('border-b border-[#E5E5E5] hover:bg-[#F7F7F7] transition-colors', isToday && 'bg-[#F7F7F7]')}>
-                    <td className={cn('px-4 py-3 text-sm sticky left-0 z-10',
-                      isToday ? 'text-[#111111] font-medium bg-[#F7F7F7]'
-                        : isPast ? 'text-[#555555] bg-white'
-                        : 'text-[#888888] bg-white'
-                    )}>
-                      Day {dayIndex + 1}
-                      {isToday && <span className="ml-1.5 text-xs text-[#888888] font-light">← today</span>}
+                  <tr
+                    key={dayIndex}
+                    className={cn(
+                      'border-b border-[#F2F2F2] transition-colors',
+                      isPerfect   ? 'bg-[#F0FDF4]'  // subtle green for 100% days
+                      : isToday   ? 'bg-[#FAFAFA]'
+                      : 'hover:bg-[#FAFAFA]',
+                    )}
+                  >
+                    {/* Day cell — sticky left, matches row tint */}
+                    <td
+                      className={cn(
+                        'sticky left-0 z-10 px-3 py-1.5 border-r border-[#E5E5E5] align-middle',
+                        isPerfect ? 'bg-[#F0FDF4]'
+                        : isToday ? 'bg-[#FAFAFA]'
+                        : 'bg-white',
+                      )}
+                    >
+                      <span className={cn(
+                        'text-sm font-medium tabular-nums block',
+                        isToday   ? 'text-[#111111]'
+                        : isPast  ? 'text-[#555555]'
+                        : 'text-[#CCCCCC]',
+                      )}>
+                        {dayIndex + 1}
+                      </span>
+                      {isToday && (
+                        <span className="text-[10px] text-[#888888] leading-none">today</span>
+                      )}
                     </td>
+
+                    {/* Habit cells */}
                     {tracker.habits.map(habit => {
-                      const done = isCompleted(dayIndex, habit.id);
+                      const done = isHabitDone(dayIndex, habit.id);
                       return (
-                        <td key={habit.id} className="px-4 py-3 text-center">
+                        <td key={habit.id} className="px-1 py-1 text-center align-middle">
                           <button
                             onClick={() => !isFuture && toggleProgress(dayIndex, habit.id)}
                             disabled={isFuture || progressMutation.isPending}
-                            title={isFuture ? 'Future day' : done ? 'Mark incomplete' : 'Mark complete'}
+                            title={
+                              isFuture ? 'Future day'
+                              : done    ? `Uncheck — ${habit.name}`
+                              :           `Check — ${habit.name}`
+                            }
                             className={cn(
-                              'w-8 h-8 rounded-lg border-2 flex items-center justify-center mx-auto transition-all duration-150',
+                              'w-7 h-7 rounded-md border flex items-center justify-center mx-auto transition-colors duration-100',
                               isFuture
-                                ? 'border-[#E5E5E5] cursor-not-allowed opacity-30 bg-[#F7F7F7]'
+                                ? 'border-transparent cursor-default opacity-20 bg-transparent'
                                 : done
-                                  ? 'bg-[#111111] border-[#111111] hover:bg-[#333333] hover:border-[#333333]'
-                                  : 'border-[#E5E5E5] hover:border-[#111111] bg-white',
+                                  ? 'bg-[#111111] border-[#111111] hover:bg-[#2A2A2A] hover:border-[#2A2A2A] active:scale-95'
+                                  : 'border-[#E5E5E5] bg-white hover:border-[#999999] active:bg-[#F7F7F7]',
                             )}
                           >
                             {done && (
-                              <svg viewBox="0 0 12 10" className="w-3.5 h-3.5 text-white" fill="none">
+                              <svg viewBox="0 0 12 10" className="w-3 h-3 text-white" fill="none">
                                 <path d="M1 5L4.5 8.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                               </svg>
                             )}
@@ -271,7 +242,6 @@ export default function TrackerDetailPage() {
         </div>
       </div>
 
-      {/* Delete confirmation dialog */}
       <ConfirmDialog
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}

@@ -1,14 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { Target, StickyNote, CheckCircle2, TrendingUp, BookOpen, Flame, Clock, ArrowRight, Activity } from 'lucide-react';
+import { Target, StickyNote, CheckCircle2, Clock, Flame, Pin, TrendingUp } from 'lucide-react';
+import { format } from 'date-fns';
 import { dashboardApi, trackersApi, notesApi, activityApi } from '../api/endpoints';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
-import Badge from '../components/ui/Badge';
 import ProgressBar from '../components/ui/ProgressBar';
 import { Link } from 'react-router-dom';
 import { formatDate, parseUTC } from '../utils/date';
 import HabitHeatmap from '../components/ui/HabitHeatmap';
+import Badge from '../components/ui/Badge';
+import { cn } from '../utils/cn';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -38,157 +39,146 @@ export default function DashboardPage() {
   const recentNotes = notes?.slice(0, 4) ?? [];
 
   return (
-    <div className="animate-slide-up">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-light text-[#111111] tracking-tighter mb-1">
-          {greeting()}, {user?.fullname?.split(' ')[0]}
-        </h1>
-        <p className="text-[#888888] text-sm font-light">Here's what's happening today</p>
+    <div className="animate-fade-in">
+      {/* Page header */}
+      <div className="mb-6">
+        <h1 className="page-title">{greeting()}, {user?.fullname?.split(' ')[0]}</h1>
+        <p className="text-xs text-[#888888] mt-1">{format(new Date(), 'EEEE, MMMM d')}</p>
       </div>
 
-      {/* Today's completion banner */}
+      {/* Today's progress — inline banner */}
       {activeTrackers.length > 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card p-4 sm:p-5 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Flame className="w-4 h-4 text-[#555555]" />
-              <span className="text-sm font-normal text-[#111111]">Today's completion</span>
-            </div>
-            <span className="text-sm font-medium text-[#111111]">{stats?.today_completion_percent ?? 0}%</span>
+        <div className="flex items-center gap-4 py-3 mb-5 border-b border-[#E5E5E5]">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <Flame className="w-3.5 h-3.5 text-[#888888]" />
+            <span className="text-sm text-[#555555]">Today</span>
           </div>
-          <ProgressBar value={stats?.today_completion_percent ?? 0} />
-        </motion.div>
+          <div className="flex-1">
+            <ProgressBar value={stats?.today_completion_percent ?? 0} />
+          </div>
+          <span className="text-sm font-semibold text-[#111111] flex-shrink-0 tabular-nums">
+            {stats?.today_completion_percent ?? 0}%
+          </span>
+        </div>
       )}
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+      {/* Stats row — inline metric strip */}
+      <div className="flex items-center gap-0 border border-[#E5E5E5] rounded-md overflow-hidden mb-6">
         {statCards.map(({ label, value, icon: Icon }, i) => (
-          <motion.div key={label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="card p-4">
-            <div className="w-8 h-8 bg-[#F2F2F2] rounded-xl flex items-center justify-center mb-3">
-              <Icon className="w-4 h-4 text-[#555555]" />
-            </div>
-            <p className="text-2xl font-light text-[#111111] tracking-tighter">{value}</p>
-            <p className="text-[#888888] text-xs mt-0.5 font-light">{label}</p>
-          </motion.div>
+          <div
+            key={label}
+            className={cn(
+              'flex-1 px-4 py-3',
+              i < statCards.length - 1 && 'border-r border-[#E5E5E5]',
+            )}
+          >
+            <p className="text-xl font-semibold text-[#111111]">{value}</p>
+            <p className="text-xs text-[#888888] mt-0.5">{label}</p>
+          </div>
         ))}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      {/* Two-column: Active Trackers + Recent Notes */}
+      <div className="grid md:grid-cols-2 gap-6 mb-6">
         {/* Active Trackers */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-medium text-[#111111] flex items-center gap-2">
-              <Target className="w-4 h-4 text-[#888888]" /> Active Trackers
-            </h2>
-            <Link to="/trackers" className="text-xs text-[#888888] hover:text-[#111111] flex items-center gap-1 transition-colors">
-              View all <ArrowRight className="w-3 h-3" />
-            </Link>
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="section-label">Active Trackers</p>
+            <Link to="/trackers" className="text-xs text-[#888888] hover:text-[#111111] transition-colors">View all</Link>
           </div>
-          <div className="space-y-2">
+          <div className="border border-[#E5E5E5] rounded-md overflow-hidden">
             {activeTrackers.slice(0, 4).map(t => (
               <Link key={t.id} to={`/trackers/${t.id}`}>
-                <div className="card-hover p-4">
-                  <div className="flex items-center justify-between mb-2.5">
-                    <span className="text-sm font-normal text-[#111111] truncate">{t.name}</span>
-                    <Badge variant="active">active</Badge>
-                  </div>
-                  <ProgressBar value={t.completion_percent} className="mb-2" />
-                  <div className="flex justify-between text-xs text-[#888888]">
-                    <span>{t.completion_percent}%</span>
-                    <span>{t.current_streak} day streak</span>
+                <div className="list-row">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-sm font-medium text-[#111111] truncate">{t.name}</span>
+                      <span className="text-xs text-[#888888] flex-shrink-0 tabular-nums">{t.completion_percent}%</span>
+                    </div>
+                    <ProgressBar value={t.completion_percent} />
                   </div>
                 </div>
               </Link>
             ))}
             {activeTrackers.length === 0 && (
-              <div className="card p-6 text-center">
-                <p className="text-[#888888] text-sm font-light mb-2">No active trackers</p>
-                <Link to="/trackers/new" className="text-sm text-[#111111] font-normal hover:underline underline-offset-2">Create one →</Link>
+              <div className="px-4 py-6 text-center">
+                <p className="text-sm text-[#888888]">No active trackers</p>
+                <Link to="/trackers/new" className="text-sm text-[#111111] underline underline-offset-2 mt-1 inline-block">Create one</Link>
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Recent Notes */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-medium text-[#111111] flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-[#888888]" /> Recent Notes
-            </h2>
-            <Link to="/notes" className="text-xs text-[#888888] hover:text-[#111111] flex items-center gap-1 transition-colors">
-              View all <ArrowRight className="w-3 h-3" />
-            </Link>
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="section-label">Recent Notes</p>
+            <Link to="/notes" className="text-xs text-[#888888] hover:text-[#111111] transition-colors">View all</Link>
           </div>
-          <div className="space-y-2">
+          <div className="border border-[#E5E5E5] rounded-md overflow-hidden">
             {recentNotes.map(note => (
               <Link key={note.id} to="/notes">
-                <div className="card-hover p-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    {note.is_pinned && <span className="text-xs">📌</span>}
-                    <span className="text-sm font-normal text-[#111111] truncate">{note.title}</span>
+                <div className="list-row">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      {note.is_pinned && <Pin className="w-3 h-3 text-[#888888] flex-shrink-0" />}
+                      <span className="text-sm font-medium text-[#111111] truncate">{note.title}</span>
+                    </div>
+                    {note.content && <p className="text-xs text-[#888888] truncate">{note.content}</p>}
                   </div>
-                  {note.content && <p className="text-xs text-[#888888] font-light line-clamp-1 leading-relaxed">{note.content}</p>}
-                  <p className="text-xs text-[#888888] mt-1.5">{formatDate(note.updated_at)}</p>
+                  <span className="text-xs text-[#888888] flex-shrink-0">{formatDate(note.updated_at, 'MMM d')}</span>
                 </div>
               </Link>
             ))}
             {recentNotes.length === 0 && (
-              <div className="card p-6 text-center">
-                <p className="text-[#888888] text-sm font-light mb-2">No notes yet</p>
-                <Link to="/notes" className="text-sm text-[#111111] font-normal hover:underline underline-offset-2">Write your first note →</Link>
+              <div className="px-4 py-6 text-center">
+                <p className="text-sm text-[#888888]">No notes yet</p>
+                <Link to="/notes" className="text-sm text-[#111111] underline underline-offset-2 mt-1 inline-block">Write your first</Link>
               </div>
             )}
           </div>
-        </motion.div>
-      </div>
-
-      {/* Activity Heatmap */}
-      <div className="card p-5 mt-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-medium text-[#111111] flex items-center gap-2">
-            <Activity className="w-4 h-4 text-[#888888]" /> Activity
-          </h2>
-          {activity?.total_events > 0 && (
-            <span className="text-xs text-[#888888] font-light">
-              {activity.total_events} login{activity.total_events !== 1 ? 's' : ''} this year
-            </span>
-          )}
         </div>
-        <div className="overflow-x-auto">
-          <HabitHeatmap data={activity?.data ?? []} weeks={26} mode="activity" />
-        </div>
-        <p className="text-xs text-[#888888] font-light mt-3">Login activity — each cell is one day · scroll horizontally on mobile</p>
       </div>
 
       {/* Upcoming */}
       {upcomingTrackers.length > 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-medium text-[#111111] flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-[#888888]" /> Upcoming
-            </h2>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <p className="section-label">Upcoming</p>
           </div>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="border border-[#E5E5E5] rounded-md overflow-hidden">
             {upcomingTrackers.slice(0, 4).map(t => {
               const startsIn = Math.ceil((parseUTC(t.start_date).getTime() - Date.now()) / 86400000);
               return (
                 <Link key={t.id} to={`/trackers/${t.id}`}>
-                  <div className="card-hover p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-normal text-[#111111]">{t.name}</span>
-                      <Badge variant="upcoming">upcoming</Badge>
+                  <div className="list-row">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-medium text-[#111111] truncate block">{t.name}</span>
+                      <span className="text-xs text-[#888888]">
+                        Starts {startsIn <= 0 ? 'today' : `in ${startsIn} day${startsIn !== 1 ? 's' : ''}`}
+                      </span>
                     </div>
-                    <p className="text-xs text-[#888888] font-light mt-1.5">
-                      Starts {startsIn <= 0 ? 'today' : `in ${startsIn} day${startsIn !== 1 ? 's' : ''}`}
-                    </p>
+                    <Badge variant="upcoming">upcoming</Badge>
                   </div>
                 </Link>
               );
             })}
           </div>
-        </motion.div>
+        </div>
       )}
+
+      {/* Activity heatmap */}
+      <div className="mt-6">
+        <div className="flex items-center justify-between mb-3">
+          <p className="section-label">Activity</p>
+          {activity?.total_events > 0 && (
+            <span className="text-xs text-[#888888]"></span>
+          )}
+        </div>
+        <div className="border border-[#E5E5E5] rounded-md p-4 overflow-x-auto">
+          <HabitHeatmap data={activity?.data ?? []} weeks={26} mode="activity" />
+        </div>
+      </div>
     </div>
   );
 }

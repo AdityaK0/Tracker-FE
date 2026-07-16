@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { Plus, Target, Star } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { trackersApi } from '../../api/endpoints';
-import Badge from '../../components/ui/Badge';
 import ProgressBar from '../../components/ui/ProgressBar';
 import EmptyState from '../../components/shared/EmptyState';
 import SkeletonCard from '../../components/shared/SkeletonCard';
@@ -19,12 +18,6 @@ const statuses = [
   { value: 'paused', label: 'Paused' },
 ];
 
-const statusVariantMap = {
-  active: 'active',
-  upcoming: 'upcoming',
-  completed: 'completed',
-  paused: 'paused',
-};
 
 export default function TrackersPage() {
   const [statusFilter, setStatusFilter] = useState('all');
@@ -47,8 +40,8 @@ export default function TrackersPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-light text-[#111111] tracking-tighter">Trackers</h1>
-          <p className="text-[#888888] text-sm mt-0.5 font-light">
+          <h1 className="page-title">Trackers</h1>
+          <p className="text-xs text-[#888888] mt-0.5">
             {trackers?.length ?? 0} trackers
           </p>
         </div>
@@ -61,13 +54,13 @@ export default function TrackersPage() {
 
       {/* Filter tabs */}
       <div className="overflow-x-auto pb-1 mb-6">
-        <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-full p-1 w-fit min-w-full sm:min-w-0">
+        <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-md p-1 w-fit min-w-full sm:min-w-0">
           {statuses.map((s) => (
             <button
               key={s.value}
               onClick={() => setStatusFilter(s.value)}
               className={cn(
-                'px-4 py-1.5 text-xs rounded-full font-normal transition-colors whitespace-nowrap',
+                'px-3 py-1 text-xs rounded-sm font-medium transition-colors whitespace-nowrap',
                 statusFilter === s.value
                   ? 'bg-[#111111] text-white'
                   : 'text-[#555555] hover:text-[#111111]',
@@ -99,7 +92,7 @@ export default function TrackersPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               onClick={() => navigate(`/trackers/${tracker.id}`)}
-              className="card p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-300 cursor-pointer group"
+              className="card p-5 hover:bg-[#FAFAFA] hover:border-[#D0D0D0] transition-colors duration-150 cursor-pointer group"
             >
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex-1 min-w-0">
@@ -114,7 +107,7 @@ export default function TrackersPage() {
                   <button
                     onClick={(e) => { e.stopPropagation(); pinMutation.mutate(tracker.id); }}
                     className={cn(
-                      'p-1 rounded-lg transition-all duration-200',
+                      'p-1 rounded-sm transition-colors duration-150',
                       tracker.is_pinned
                         ? 'text-amber-400 hover:text-amber-500'
                         : 'text-transparent group-hover:text-[#CCCCCC] hover:!text-amber-400',
@@ -123,9 +116,6 @@ export default function TrackersPage() {
                   >
                     <Star className={cn('w-3.5 h-3.5', tracker.is_pinned && 'fill-amber-400')} />
                   </button>
-                  <Badge variant={statusVariantMap[tracker.status]}>
-                    {tracker.status}
-                  </Badge>
                 </div>
               </div>
 
