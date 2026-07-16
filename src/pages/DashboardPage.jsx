@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Target, StickyNote, CheckCircle2, TrendingUp, BookOpen, Flame, Clock, ArrowRight, Activity } from 'lucide-react';
-import { dashboardApi, trackersApi, notesApi } from '../api/endpoints';
+import { dashboardApi, trackersApi, notesApi, activityApi } from '../api/endpoints';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import Badge from '../components/ui/Badge';
@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const { data: stats, isLoading } = useQuery({ queryKey: ['dashboard'], queryFn: dashboardApi.stats });
   const { data: trackers } = useQuery({ queryKey: ['trackers'], queryFn: () => trackersApi.list() });
   const { data: notes } = useQuery({ queryKey: ['notes'], queryFn: () => notesApi.list() });
+  const { data: activity } = useQuery({ queryKey: ['activity'], queryFn: () => activityApi.get(), staleTime: 60_000 });
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -48,7 +49,7 @@ export default function DashboardPage() {
 
       {/* Today's completion banner */}
       {activeTrackers.length > 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card p-5 mb-6">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card p-4 sm:p-5 mb-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Flame className="w-4 h-4 text-[#555555]" />
@@ -61,7 +62,7 @@ export default function DashboardPage() {
       )}
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
         {statCards.map(({ label, value, icon: Icon }, i) => (
           <motion.div key={label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="card p-4">
             <div className="w-8 h-8 bg-[#F2F2F2] rounded-xl flex items-center justify-center mb-3">
@@ -73,7 +74,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-6">
         {/* Active Trackers */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
           <div className="flex items-center justify-between mb-3">
@@ -144,11 +145,20 @@ export default function DashboardPage() {
 
       {/* Activity Heatmap */}
       <div className="card p-5 mt-6">
-        <h2 className="text-sm font-medium text-[#111111] mb-4 flex items-center gap-2">
-          <Activity className="w-4 h-4 text-[#888888]" /> Activity
-        </h2>
-        <HabitHeatmap progressData={[]} weeks={26} />
-        <p className="text-xs text-[#888888] font-light mt-2">Full activity view coming soon — open a tracker to see detailed progress</p>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-medium text-[#111111] flex items-center gap-2">
+            <Activity className="w-4 h-4 text-[#888888]" /> Activity
+          </h2>
+          {activity?.total_events > 0 && (
+            <span className="text-xs text-[#888888] font-light">
+              {activity.total_events} login{activity.total_events !== 1 ? 's' : ''} this year
+            </span>
+          )}
+        </div>
+        <div className="overflow-x-auto">
+          <HabitHeatmap data={activity?.data ?? []} weeks={26} mode="activity" />
+        </div>
+        <p className="text-xs text-[#888888] font-light mt-3">Login activity — each cell is one day · scroll horizontally on mobile</p>
       </div>
 
       {/* Upcoming */}

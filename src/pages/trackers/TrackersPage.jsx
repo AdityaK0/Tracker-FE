@@ -52,27 +52,31 @@ export default function TrackersPage() {
             {trackers?.length ?? 0} trackers
           </p>
         </div>
-        <Link to="/trackers/new" className="btn-primary flex items-center gap-2">
-          <Plus className="w-4 h-4" /> New Tracker
+        <Link to="/trackers/new" className="btn-primary flex items-center gap-2 flex-shrink-0 text-sm">
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">New Tracker</span>
+          <span className="sm:hidden">New</span>
         </Link>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-full p-1 mb-6 w-fit">
-        {statuses.map((s) => (
-          <button
-            key={s.value}
-            onClick={() => setStatusFilter(s.value)}
-            className={cn(
-              'px-4 py-1.5 text-xs rounded-full font-normal transition-colors whitespace-nowrap',
-              statusFilter === s.value
-                ? 'bg-[#111111] text-white'
-                : 'text-[#555555] hover:text-[#111111]',
-            )}
-          >
-            {s.label}
-          </button>
-        ))}
+      <div className="overflow-x-auto pb-1 mb-6">
+        <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-full p-1 w-fit min-w-full sm:min-w-0">
+          {statuses.map((s) => (
+            <button
+              key={s.value}
+              onClick={() => setStatusFilter(s.value)}
+              className={cn(
+                'px-4 py-1.5 text-xs rounded-full font-normal transition-colors whitespace-nowrap',
+                statusFilter === s.value
+                  ? 'bg-[#111111] text-white'
+                  : 'text-[#555555] hover:text-[#111111]',
+              )}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (

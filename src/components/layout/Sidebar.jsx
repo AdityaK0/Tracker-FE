@@ -13,7 +13,7 @@ const navItems = [
   { to: '/trash', icon: Trash2, label: 'Trash', end: false },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onClose = () => {} }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -31,6 +31,7 @@ export default function Sidebar() {
 
   const handleLogout = async () => {
     setDropdownOpen(false);
+    onClose();
     await logout();
     toast.success('Logged out');
     navigate('/login');
@@ -41,7 +42,7 @@ export default function Sidebar() {
   const displayName = user?.display_name || user?.fullname || user?.username;
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-60 bg-white border-r border-[#E5E5E5] flex flex-col z-40">
+    <aside className="h-full w-full bg-white border-r border-[#E5E5E5] flex flex-col">
       {/* Logo */}
       <div className="p-5 border-b border-[#E5E5E5]">
         <div className="flex items-center gap-2.5">
@@ -56,7 +57,10 @@ export default function Sidebar() {
       <nav className="flex-1 p-3 space-y-0.5">
         <p className="text-xs font-medium text-[#888888] uppercase tracking-wider px-3 mb-3 mt-1">Menu</p>
         <button
-          onClick={() => window.dispatchEvent(new CustomEvent('open-search'))}
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent('open-search'));
+            onClose();
+          }}
           className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2] w-full transition-all mb-3"
         >
           <Search className="w-4 h-4" />
@@ -68,6 +72,7 @@ export default function Sidebar() {
             key={to}
             to={to}
             end={end}
+            onClick={onClose}
             className={({ isActive }) =>
               cn('flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-normal text-[#555555] hover:text-[#111111] hover:bg-[#F2F2F2] transition-all duration-200 cursor-pointer',
                 isActive && 'text-[#111111] bg-[#F2F2F2] font-medium')
@@ -98,14 +103,14 @@ export default function Sidebar() {
 
               <div className="p-1.5 space-y-0.5">
                 <button
-                  onClick={() => { setDropdownOpen(false); navigate('/profile'); }}
+                  onClick={() => { setDropdownOpen(false); onClose(); navigate('/profile'); }}
                   className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-[#555555] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors text-left"
                 >
                   <User className="w-3.5 h-3.5" />
                   View Profile
                 </button>
                 <button
-                  onClick={() => { setDropdownOpen(false); navigate('/profile?tab=settings'); }}
+                  onClick={() => { setDropdownOpen(false); onClose(); navigate('/profile?tab=settings'); }}
                   className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-[#555555] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors text-left"
                 >
                   <Settings className="w-3.5 h-3.5" />

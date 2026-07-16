@@ -253,7 +253,7 @@ export default function CreateTrackerPage() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <div className="card p-6">
+            <div className="card p-4 sm:p-6">
               <h2 className="text-base font-medium text-[#111111] mb-5">
                 Tracker Details
               </h2>
@@ -294,7 +294,7 @@ export default function CreateTrackerPage() {
                 <div className="flex justify-end pt-2">
                   <button
                     type="submit"
-                    className="btn-primary flex items-center gap-2"
+                    className="btn-primary flex items-center gap-2 py-3 sm:py-2.5"
                   >
                     Next <ChevronRight className="w-4 h-4" />
                   </button>
@@ -312,7 +312,7 @@ export default function CreateTrackerPage() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <div className="card p-6 space-y-6">
+            <div className="card p-4 sm:p-6 space-y-6">
               <h2 className="text-base font-medium text-[#111111]">
                 Duration & Start Date
               </h2>
@@ -437,7 +437,7 @@ export default function CreateTrackerPage() {
               <div className="flex justify-between pt-2">
                 <button
                   onClick={() => setStep(1)}
-                  className="btn-secondary flex items-center gap-2"
+                  className="btn-secondary flex items-center gap-2 py-3 sm:py-2.5"
                 >
                   <ChevronLeft className="w-4 h-4" /> Back
                 </button>
@@ -452,7 +452,7 @@ export default function CreateTrackerPage() {
                     }
                     setStep(3);
                   }}
-                  className="btn-primary flex items-center gap-2"
+                  className="btn-primary flex items-center gap-2 py-3 sm:py-2.5"
                 >
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
@@ -469,7 +469,7 @@ export default function CreateTrackerPage() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <div className="card p-6 space-y-4">
+            <div className="card p-4 sm:p-6 space-y-4">
               <div>
                 <h2 className="text-base font-medium text-[#111111]">
                   Add Habits
@@ -535,14 +535,14 @@ export default function CreateTrackerPage() {
               <div className="flex justify-between pt-2">
                 <button
                   onClick={() => setStep(2)}
-                  className="btn-secondary flex items-center gap-2"
+                  className="btn-secondary flex items-center gap-2 py-3 sm:py-2.5"
                 >
                   <ChevronLeft className="w-4 h-4" /> Back
                 </button>
                 <button
                   onClick={() => setStep(4)}
                   disabled={habits.length === 0}
-                  className="btn-primary flex items-center gap-2"
+                  className="btn-primary flex items-center gap-2 py-3 sm:py-2.5"
                 >
                   Next <ChevronRight className="w-4 h-4" />
                 </button>
@@ -559,7 +559,7 @@ export default function CreateTrackerPage() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <div className="card p-6 space-y-5">
+            <div className="card p-4 sm:p-6 space-y-5">
               <h2 className="text-base font-medium text-[#111111]">
                 Review & Create
               </h2>
@@ -623,14 +623,14 @@ export default function CreateTrackerPage() {
               <div className="flex justify-between pt-2">
                 <button
                   onClick={() => setStep(3)}
-                  className="btn-secondary flex items-center gap-2"
+                  className="btn-secondary flex items-center gap-2 py-3 sm:py-2.5"
                 >
                   <ChevronLeft className="w-4 h-4" /> Back
                 </button>
                 <button
                   onClick={handleCreate}
                   disabled={createMutation.isPending}
-                  className="btn-primary flex items-center gap-2"
+                  className="btn-primary flex items-center gap-2 py-3 sm:py-2.5"
                 >
                   <Target className="w-4 h-4" />
                   {createMutation.isPending ? 'Creating...' : 'Create Tracker'}

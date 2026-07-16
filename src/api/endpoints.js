@@ -88,3 +88,10 @@ export const profileApi = {
   },
   deleteAvatar: () => apiClient.delete('/users/avatar').then(r => r.data),
 };
+
+
+// Activity (event log heatmap)
+export const activityApi = {
+  // Returns { data: [{date, count}], total_events, start_date, end_date }
+  get: (params = {}) => apiClient.get('/activity', { params }).then(r => r.data),
+};

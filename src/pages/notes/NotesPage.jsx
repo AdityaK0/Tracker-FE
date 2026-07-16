@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { formatDate } from '../../utils/date';
 import { notesApi, trashApi } from '../../api/endpoints';
 import Modal from '../../components/ui/Modal';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import EmptyState from '../../components/shared/EmptyState';
 import SkeletonCard from '../../components/shared/SkeletonCard';
 import { toast } from '../../components/ui/Toaster';
@@ -31,7 +32,7 @@ function NoteCard({ note, onEdit, onPin, onArchive, onDelete }) {
         <h3 className="text-sm font-medium text-[#111111] flex-1 leading-snug">
           {note.title}
         </h3>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+        <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex-shrink-0">
           <button
             onClick={() => onPin(note)}
             className={cn(
@@ -87,6 +88,7 @@ export default function NotesPage() {
   const [showArchived, setShowArchived] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deletingNote, setDeletingNote] = useState(null);
   const qc = useQueryClient();
 
   const { data: notes, isLoading } = useQuery({
@@ -187,11 +189,7 @@ export default function NotesPage() {
     });
   };
 
-  const handleDelete = (note) => {
-    if (confirm(`Delete "${note.title}"?`)) {
-      deleteMutation.mutate(note.id);
-    }
-  };
+  const handleDelete = (note) => setDeletingNote(note);
 
   const pinnedNotes = notes?.filter((n) => n.is_pinned) ?? [];
   const unpinnedNotes = notes?.filter((n) => !n.is_pinned) ?? [];
@@ -199,8 +197,8 @@ export default function NotesPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex items-center justify-between mb-6 gap-3">
+        <div className="min-w-0">
           <h1 className="text-xl font-light text-[#111111] tracking-tighter">Notes</h1>
           <p className="text-[#888888] text-sm mt-0.5 font-light">
             {notes?.length ?? 0} {showArchived ? 'archived ' : ''}notes
@@ -208,15 +206,17 @@ export default function NotesPage() {
         </div>
         <button
           onClick={openCreate}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center gap-2 flex-shrink-0 text-sm"
         >
-          <Plus className="w-4 h-4" /> New Note
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">New Note</span>
+          <span className="sm:hidden">New</span>
         </button>
       </div>
 
       {/* Search + filter */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="relative flex-1 max-w-xs">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#888888]" />
           <input
             value={search}
@@ -225,7 +225,7 @@ export default function NotesPage() {
             placeholder="Search notes..."
           />
         </div>
-        <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-full p-1">
+        <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-full p-1 w-fit">
           {[false, true].map((arch) => (
             <button
               key={String(arch)}
@@ -245,7 +245,7 @@ export default function NotesPage() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
@@ -275,7 +275,7 @@ export default function NotesPage() {
               <p className="section-label mb-3 flex items-center gap-1.5">
                 <Pin className="w-3 h-3" /> Pinned
               </p>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AnimatePresence>
                   {pinnedNotes.map((note) => (
                     <NoteCard
@@ -298,7 +298,7 @@ export default function NotesPage() {
               {pinnedNotes.length > 0 && (
                 <p className="section-label mb-3">Others</p>
               )}
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AnimatePresence>
                   {unpinnedNotes.map((note) => (
                     <NoteCard
@@ -316,6 +316,17 @@ export default function NotesPage() {
           )}
         </>
       )}
+
+      {/* Delete confirmation */}
+      <ConfirmDialog
+        open={!!deletingNote}
+        onClose={() => setDeletingNote(null)}
+        onConfirm={() => { deleteMutation.mutate(deletingNote.id); setDeletingNote(null); }}
+        title="Move to trash?"
+        description={`"${deletingNote?.title}" will be moved to trash. You can restore it anytime.`}
+        confirmLabel="Move to Trash"
+        isLoading={deleteMutation.isPending}
+      />
 
       {/* Create / Edit Modal */}
       <Modal

@@ -104,31 +104,33 @@ export default function TrashPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ delay: i * 0.03 }}
-                  className="card px-5 py-4 flex items-center gap-4 group"
+                  className="card px-4 py-4 sm:px-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 group"
                 >
-                  <div className="w-9 h-9 bg-[#F2F2F2] rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-4 h-4 text-[#888888]" />
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-9 h-9 bg-[#F2F2F2] rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Icon className="w-4 h-4 text-[#888888]" />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-normal text-[#111111] truncate">{item.title}</p>
+                      <p className="text-xs text-[#888888] font-light mt-0.5">
+                        <span className="capitalize">{item.type}</span> · Deleted {timeAgo(item.deleted_at)}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-normal text-[#111111] truncate">{item.title}</p>
-                    <p className="text-xs text-[#888888] font-light mt-0.5">
-                      <span className="capitalize">{item.type}</span> · Deleted {timeAgo(item.deleted_at)}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity pl-12 sm:pl-0">
                     <button
                       onClick={() => restoreMutation.mutate({ id: item.id, type: item.type })}
                       disabled={restoreMutation.isPending}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-[#555555] hover:text-[#111111] hover:bg-[#F2F2F2] transition-colors border border-[#E5E5E5]"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-[#555555] hover:text-[#111111] hover:bg-[#F2F2F2] transition-colors border border-[#E5E5E5] min-h-[36px]"
                     >
                       <RotateCcw className="w-3 h-3" />
                       Restore
                     </button>
                     <button
                       onClick={() => setPermanentDeleteItem(item)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-red-400 hover:text-red-500 hover:bg-red-50 transition-colors border border-red-100"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-red-400 hover:text-red-500 hover:bg-red-50 transition-colors border border-red-100 min-h-[36px]"
                     >
                       <Trash2 className="w-3 h-3" />
                       Delete

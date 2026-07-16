@@ -70,13 +70,13 @@ export default function TrackerDetailPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate('/trackers')} className="btn-ghost p-2">
+      <div className="flex items-start gap-3 mb-6">
+        <button onClick={() => navigate('/trackers')} className="btn-ghost p-2 flex-shrink-0 mt-0.5">
           <ChevronLeft className="w-4 h-4" />
         </button>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl font-light text-[#111111] tracking-tighter truncate">{tracker.name}</h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl font-light text-[#111111] tracking-tighter break-words">{tracker.name}</h1>
             <Badge variant={statusVariantMap[tracker.status]}>{tracker.status}</Badge>
           </div>
           {tracker.description && (
@@ -96,7 +96,7 @@ export default function TrackerDetailPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         {statItems.map(({ label, value, icon: Icon }, i) => (
           <motion.div
             key={label}
@@ -127,8 +127,82 @@ export default function TrackerDetailPage() {
         </div>
       </div>
 
-      {/* Daily progress table */}
-      <div className="card overflow-hidden">
+      {/* Mobile: section header */}
+      <div className="md:hidden flex items-center justify-between mb-3">
+        <h2 className="text-sm font-medium text-[#111111]">Daily Progress</h2>
+        <span className="text-xs text-[#888888] font-light">Tap to toggle</span>
+      </div>
+
+      {/* Mobile: Day cards */}
+      <div className="md:hidden space-y-3">
+        {Array.from({ length: tracker.duration_days }, (_, dayIndex) => {
+          const isToday = dayIndex === tracker.days_elapsed - 1 && tracker.status === 'active';
+          const isPast = dayIndex < tracker.days_elapsed;
+          const isFuture = dayIndex >= tracker.days_elapsed;
+          const dayComplete = tracker.habits.length > 0 &&
+            tracker.habits.every(h => isCompleted(dayIndex, h.id));
+
+          return (
+            <div key={dayIndex} className={cn(
+              'card p-4',
+              isToday && 'border-[#111111]',
+            )}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className={cn('text-sm font-medium',
+                    isToday ? 'text-[#111111]' : isPast ? 'text-[#555555]' : 'text-[#888888]'
+                  )}>
+                    Day {dayIndex + 1}
+                  </span>
+                  {isToday && (
+                    <span className="text-xs bg-[#111111] text-white px-2 py-0.5 rounded-full font-normal">Today</span>
+                  )}
+                </div>
+                {isPast && (
+                  <span className="text-xs text-[#888888] font-light">
+                    {dayComplete ? 'Complete' : 'Incomplete'}
+                  </span>
+                )}
+              </div>
+              <div className="space-y-2">
+                {tracker.habits.map(habit => {
+                  const done = isCompleted(dayIndex, habit.id);
+                  return (
+                    <button
+                      key={habit.id}
+                      onClick={() => !isFuture && toggleProgress(dayIndex, habit.id)}
+                      disabled={isFuture || progressMutation.isPending}
+                      className={cn(
+                        'w-full flex items-center gap-3 py-2.5 px-1 rounded-lg text-left transition-colors min-h-[44px]',
+                        isFuture ? 'opacity-30 cursor-not-allowed' : 'hover:bg-[#F7F7F7] active:bg-[#F2F2F2]',
+                      )}
+                    >
+                      <div className={cn(
+                        'w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors',
+                        isFuture ? 'border-[#E5E5E5]'
+                          : done ? 'bg-[#111111] border-[#111111]'
+                          : 'border-[#E5E5E5]',
+                      )}>
+                        {done && (
+                          <svg viewBox="0 0 12 10" className="w-3 h-3 text-white" fill="none">
+                            <path d="M1 5L4.5 8.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                      </div>
+                      <span className={cn('text-sm', done ? 'text-[#555555] line-through' : isFuture ? 'text-[#888888]' : 'text-[#111111]')}>
+                        {habit.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop/Tablet: scrollable table */}
+      <div className="hidden md:block card overflow-hidden">
         <div className="p-4 border-b border-[#E5E5E5]">
           <h2 className="text-sm font-medium text-[#111111]">Daily Progress</h2>
           <p className="text-xs text-[#888888] mt-0.5 font-light">Click a cell to toggle completion</p>

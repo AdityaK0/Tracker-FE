@@ -236,22 +236,24 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-white border border-[#E5E5E5] rounded-xl p-1 w-fit">
-        {tabs.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setActiveTab(id)}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-200',
-              activeTab === id
-                ? 'bg-[#111111] text-white font-medium'
-                : 'text-[#555555] hover:text-[#111111] hover:bg-[#F7F7F7]'
-            )}
-          >
-            <Icon className="w-3.5 h-3.5" />
-            {label}
-          </button>
-        ))}
+      <div className="overflow-x-auto mb-6">
+        <div className="flex gap-1 bg-white border border-[#E5E5E5] rounded-xl p-1 w-fit">
+          {tabs.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all duration-200 min-h-[44px] whitespace-nowrap',
+                activeTab === id
+                  ? 'bg-[#111111] text-white font-medium'
+                  : 'text-[#555555] hover:text-[#111111] hover:bg-[#F7F7F7]'
+              )}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {activeTab === 'profile' && (
