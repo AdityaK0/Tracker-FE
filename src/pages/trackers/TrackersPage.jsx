@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Plus, Target } from 'lucide-react';
+import { Plus, Target, Star } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { trackersApi } from '../../api/endpoints';
 import Badge from '../../components/ui/Badge';
@@ -29,10 +29,18 @@ const statusVariantMap = {
 export default function TrackersPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const navigate = useNavigate();
+  const qc = useQueryClient();
 
   const { data: trackers, isLoading } = useQuery({
     queryKey: ['trackers', statusFilter],
     queryFn: () => trackersApi.list(statusFilter === 'all' ? undefined : statusFilter),
+  });
+
+  const pinMutation = useMutation({
+    mutationFn: (id) => trackersApi.togglePin(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['trackers'] });
+    },
   });
 
   return (
@@ -80,14 +88,14 @@ export default function TrackersPage() {
         />
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          {trackers.map((tracker, i) => (
+          {[...trackers].sort((a, b) => (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0)).map((tracker, i) => (
             <motion.div
               key={tracker.id}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               onClick={() => navigate(`/trackers/${tracker.id}`)}
-              className="card p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-300 cursor-pointer"
+              className="card p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-300 cursor-pointer group"
             >
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex-1 min-w-0">
@@ -98,9 +106,23 @@ export default function TrackersPage() {
                     </p>
                   )}
                 </div>
-                <Badge variant={statusVariantMap[tracker.status]}>
-                  {tracker.status}
-                </Badge>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); pinMutation.mutate(tracker.id); }}
+                    className={cn(
+                      'p-1 rounded-lg transition-all duration-200',
+                      tracker.is_pinned
+                        ? 'text-amber-400 hover:text-amber-500'
+                        : 'text-transparent group-hover:text-[#CCCCCC] hover:!text-amber-400',
+                    )}
+                    title={tracker.is_pinned ? 'Unpin tracker' : 'Pin tracker'}
+                  >
+                    <Star className={cn('w-3.5 h-3.5', tracker.is_pinned && 'fill-amber-400')} />
+                  </button>
+                  <Badge variant={statusVariantMap[tracker.status]}>
+                    {tracker.status}
+                  </Badge>
+                </div>
               </div>
 
               <ProgressBar value={tracker.completion_percent} className="mb-2" />

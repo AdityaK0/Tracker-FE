@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Target, StickyNote, CheckCircle2, TrendingUp, BookOpen, Flame, Clock, ArrowRight } from 'lucide-react';
+import { Target, StickyNote, CheckCircle2, TrendingUp, BookOpen, Flame, Clock, ArrowRight, Activity } from 'lucide-react';
 import { dashboardApi, trackersApi, notesApi } from '../api/endpoints';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -8,6 +8,7 @@ import Badge from '../components/ui/Badge';
 import ProgressBar from '../components/ui/ProgressBar';
 import { Link } from 'react-router-dom';
 import { formatDate, parseUTC } from '../utils/date';
+import HabitHeatmap from '../components/ui/HabitHeatmap';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -139,6 +140,15 @@ export default function DashboardPage() {
             )}
           </div>
         </motion.div>
+      </div>
+
+      {/* Activity Heatmap */}
+      <div className="card p-5 mt-6">
+        <h2 className="text-sm font-medium text-[#111111] mb-4 flex items-center gap-2">
+          <Activity className="w-4 h-4 text-[#888888]" /> Activity
+        </h2>
+        <HabitHeatmap progressData={[]} weeks={26} />
+        <p className="text-xs text-[#888888] font-light mt-2">Full activity view coming soon — open a tracker to see detailed progress</p>
       </div>
 
       {/* Upcoming */}

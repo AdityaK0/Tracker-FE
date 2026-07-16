@@ -94,7 +94,17 @@ function ToastItem({ toast: t, onDismiss }) {
     >
       <div className="flex items-start gap-3 px-4 py-3.5 pr-9">
         <Icon className={cn('w-4 h-4 flex-shrink-0 mt-0.5', iconClass)} />
-        <p className="text-sm text-[#111111] font-normal leading-snug flex-1">{t.message}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-[#111111] font-normal leading-snug">{t.message}</p>
+          {t.action && (
+            <button
+              onClick={() => { t.action.onClick(); onDismiss(t.id); }}
+              className="text-xs font-medium text-[#111111] underline underline-offset-2 mt-1 hover:text-[#555555] transition-colors"
+            >
+              {t.action.label}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Close button */}

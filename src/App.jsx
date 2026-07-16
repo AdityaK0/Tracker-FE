@@ -10,6 +10,8 @@ import TrackersPage from './pages/trackers/TrackersPage';
 import CreateTrackerPage from './pages/trackers/CreateTrackerPage';
 import TrackerDetailPage from './pages/trackers/TrackerDetailPage';
 import ProfilePage from './pages/ProfilePage';
+import TrashPage from './pages/TrashPage';
+import CommandPalette from './components/ui/CommandPalette';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 
 function ProtectedRoute({ children }) {
@@ -29,6 +31,7 @@ function GuestRoute({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <CommandPalette />
       <Routes>
         <Route
           path="/login"
@@ -59,6 +62,7 @@ export default function App() {
           <Route path="trackers/new" element={<CreateTrackerPage />} />
           <Route path="trackers/:id" element={<TrackerDetailPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="trash" element={<TrashPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

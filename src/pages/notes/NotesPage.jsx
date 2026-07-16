@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { formatDate } from '../../utils/date';
-import { notesApi } from '../../api/endpoints';
+import { notesApi, trashApi } from '../../api/endpoints';
 import Modal from '../../components/ui/Modal';
 import EmptyState from '../../components/shared/EmptyState';
 import SkeletonCard from '../../components/shared/SkeletonCard';
@@ -137,9 +137,11 @@ export default function NotesPage() {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => notesApi.delete(id),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
       invalidate();
-      toast.success('Note deleted');
+      toast.success('Note moved to trash', {
+        action: { label: 'Undo', onClick: () => trashApi.restoreNote(id).then(invalidate) },
+      });
     },
     onError: () => toast.error('Failed to delete note'),
   });

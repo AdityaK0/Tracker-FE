@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, StickyNote, Target, LogOut, Zap, User, ChevronUp, Settings } from 'lucide-react';
+import { LayoutDashboard, StickyNote, Target, LogOut, Zap, User, ChevronUp, Settings, Trash2, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { cn } from '../../utils/cn';
@@ -10,6 +10,7 @@ const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/notes', icon: StickyNote, label: 'Notes', end: false },
   { to: '/trackers', icon: Target, label: 'Trackers', end: false },
+  { to: '/trash', icon: Trash2, label: 'Trash', end: false },
 ];
 
 export default function Sidebar() {
@@ -54,6 +55,14 @@ export default function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 p-3 space-y-0.5">
         <p className="text-xs font-medium text-[#888888] uppercase tracking-wider px-3 mb-3 mt-1">Menu</p>
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('open-search'))}
+          className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2] w-full transition-all mb-3"
+        >
+          <Search className="w-4 h-4" />
+          <span className="flex-1 text-left">Search</span>
+          <span className="text-xs bg-[#F2F2F2] px-1.5 py-0.5 rounded-md font-mono">⌘K</span>
+        </button>
         {navItems.map(({ to, icon: Icon, label, end }) => (
           <NavLink
             key={to}

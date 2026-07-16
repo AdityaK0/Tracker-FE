@@ -56,6 +56,18 @@ export const trackersApi = {
     apiClient
       .patch(`/trackers/${id}/progress`, { day_index, habit_id, completed })
       .then((r) => r.data),
+
+  togglePin: (id) => apiClient.patch(`/trackers/${id}/pin`).then((r) => r.data),
+};
+
+// Trash
+export const trashApi = {
+  list: () => apiClient.get('/trash').then(r => r.data),
+  restoreNote: (id) => apiClient.post(`/trash/notes/${id}/restore`).then(r => r.data),
+  restoreTracker: (id) => apiClient.post(`/trash/trackers/${id}/restore`).then(r => r.data),
+  deleteNotePermanently: (id) => apiClient.delete(`/trash/notes/${id}`),
+  deleteTrackerPermanently: (id) => apiClient.delete(`/trash/trackers/${id}`),
+  emptyTrash: () => apiClient.delete('/trash').then(r => r.data),
 };
 
 // Dashboard
