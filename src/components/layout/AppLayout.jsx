@@ -1,19 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PanelLeftOpen, Zap } from 'lucide-react';
 import Sidebar from './Sidebar';
 import BottomNav from './BottomNav';
+import { cn } from '../../utils/cn';
 
 export default function AppLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 1024 : true
+  );
   const location = useLocation();
 
-  // Close mobile sidebar on route change
+  // Close sidebar on mobile/tablet route change
   useEffect(() => {
-    setSidebarOpen(false);
+    if (window.innerWidth < 1024) setSidebarOpen(false);
   }, [location.pathname]);
 
-  // Close on Escape key
+  // Escape key closes
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') setSidebarOpen(false); };
     window.addEventListener('keydown', handler);
@@ -22,18 +26,24 @@ export default function AppLayout() {
 
   return (
     <div className="flex h-screen bg-[#F7F7F7] overflow-hidden">
-      {/* ── Desktop: permanent sidebar ───────────────────────────── */}
-      <div className="hidden lg:flex lg:flex-shrink-0">
-        <div className="w-60">
-          <Sidebar onClose={() => {}} />
+
+      {/* ── Desktop sidebar — flex item, animates width ───────────────── */}
+      <div
+        className={cn(
+          'hidden lg:block flex-shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
+          sidebarOpen ? 'w-60' : 'w-0',
+        )}
+      >
+        {/* Inner wrapper keeps the sidebar at full 240px regardless of container width */}
+        <div className="w-60 h-full">
+          <Sidebar onClose={() => setSidebarOpen(false)} />
         </div>
       </div>
 
-      {/* ── Mobile/Tablet: slide-over drawer ─────────────────────── */}
+      {/* ── Mobile/tablet drawer ──────────────────────────────────────── */}
       <AnimatePresence>
         {sidebarOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
               initial={{ opacity: 0 }}
@@ -42,7 +52,6 @@ export default function AppLayout() {
               transition={{ duration: 0.2 }}
               onClick={() => setSidebarOpen(false)}
             />
-            {/* Drawer */}
             <motion.div
               className="fixed left-0 top-0 h-full w-72 z-50 lg:hidden"
               initial={{ x: '-100%' }}
@@ -56,44 +65,41 @@ export default function AppLayout() {
         )}
       </AnimatePresence>
 
-      {/* ── Main content area ─────────────────────────────────────── */}
+      {/* ── Main content area ─────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top bar — visible on mobile/tablet only */}
-        <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-[#E5E5E5] flex-shrink-0">
+
+        {/* Top bar — always visible so hamburger is reachable when sidebar is closed */}
+        <header className="flex items-center gap-3 px-3 py-2.5 bg-white border-b border-[#E5E5E5] flex-shrink-0">
           <button
-            onClick={() => setSidebarOpen(true)}
-            className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F2F2F2] transition-colors"
-            aria-label="Open menu"
+            onClick={() => setSidebarOpen(o => !o)}
+            className="w-8 h-8 flex items-center justify-center rounded-md text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2] transition-colors flex-shrink-0"
+            aria-label="Toggle sidebar"
           >
-            {/* Hamburger */}
-            <div className="flex flex-col gap-1.5">
-              <span className="w-5 h-0.5 bg-[#111111] rounded-full block" />
-              <span className="w-5 h-0.5 bg-[#111111] rounded-full block" />
-              <span className="w-3 h-0.5 bg-[#111111] rounded-full block" />
-            </div>
+            <PanelLeftOpen className="w-4 h-4" />
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#111111] rounded-lg flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-white fill-white">
-                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+
+          {/* App name — hidden on desktop when sidebar is open (logo is already there) */}
+          <div className={cn(
+            'flex items-center gap-1.5 transition-opacity duration-200',
+            'lg:opacity-0 lg:pointer-events-none',
+            !sidebarOpen && 'lg:opacity-100 lg:pointer-events-auto',
+          )}>
+            <div className="w-5 h-5 bg-[#111111] rounded-md flex items-center justify-center">
+              <Zap className="w-3 h-3 text-white" />
             </div>
-            <span className="font-medium text-[#111111] text-sm">HabitFlow</span>
+            <span className="font-semibold text-[#111111] text-sm">HabitFlow</span>
           </div>
-          {/* Right side placeholder — keeps logo centered */}
-          <div className="w-10" />
         </header>
 
         {/* Scrollable page content */}
         <main className="flex-1 overflow-y-auto">
-          {/* Bottom padding on mobile for the bottom nav */}
           <div className="max-w-5xl mx-auto px-4 py-6 md:px-6 md:py-8 pb-24 lg:pb-8">
             <Outlet />
           </div>
         </main>
       </div>
 
-      {/* ── Mobile bottom navigation ──────────────────────────────── */}
+      {/* ── Mobile bottom navigation ──────────────────────────────────── */}
       <BottomNav />
     </div>
   );

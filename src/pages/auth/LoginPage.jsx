@@ -30,50 +30,75 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F7F7] flex items-center justify-center p-4">
-      <motion.div className="w-full max-w-sm" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-
-        {/* Logo */}
-        <div className="flex justify-center mb-10">
-          <div className="w-8 h-8 bg-[#111111] rounded-md flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
+    <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center p-4">
+      <motion.div
+        className="w-full max-w-sm"
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="bg-white rounded-md p-7">
+          {/* Brand */}
+          <div className="flex flex-col items-center mb-7">
+            <div className="w-10 h-10 bg-[#111111] rounded-md flex items-center justify-center mb-3">
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-base font-semibold text-[#111111]">HabitFlow</h1>
+            <p className="text-sm text-[#888888] mt-1">Sign in and build better habits</p>
           </div>
-        </div>
 
-        <div className="text-center mb-8">
-          <h1 className="text-lg font-semibold text-[#111111] mb-2">Welcome back</h1>
-          <p className="text-[#888888] text-sm font-light">Sign in to continue</p>
-        </div>
-
-        <div className="bg-white border border-[#E5E5E5] rounded-md p-5">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
             <div>
-              <label className="block text-sm font-normal text-[#111111] mb-1.5">Username</label>
-              <input {...register('username')} className="input-base" placeholder="your_username" />
+              <label className="block text-xs font-medium text-[#555555] mb-1.5">Username</label>
+              <input {...register('username')} className="input-base" placeholder="your_username" autoComplete="username" />
               {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-normal text-[#111111] mb-1.5">Password</label>
+              <label className="block text-xs font-medium text-[#555555] mb-1.5">Password</label>
               <div className="relative">
-                <input {...register('password')} type={showPassword ? 'text' : 'password'} className="input-base pr-10" placeholder="••••••••" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#888888] hover:text-[#111111] transition-colors">
+                <input
+                  {...register('password')}
+                  type={showPassword ? 'text' : 'password'}
+                  className="input-base pr-10"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-[#555555] transition-colors"
+                >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
             </div>
 
-            <button type="submit" disabled={isSubmitting} className="btn-primary w-full mt-2 flex items-center justify-center">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn-primary w-full mt-1 flex items-center justify-center h-9"
+            >
               {isSubmitting ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
-        </div>
 
-        <p className="text-center text-sm text-[#888888] font-light mt-5">
-          No account?{' '}
-          <Link to="/register" className="text-[#111111] font-normal hover:underline underline-offset-2">Create one</Link>
-        </p>
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px bg-[#E5E5E5]" />
+            <span className="text-[11px] text-[#AAAAAA] uppercase tracking-wider">or</span>
+            <div className="flex-1 h-px bg-[#E5E5E5]" />
+          </div>
+
+          <p className="text-center text-sm text-[#888888]">
+            No account?{' '}
+            <Link to="/register" className="text-[#111111] font-medium hover:underline underline-offset-2">
+              Create one
+            </Link>
+          </p>
+        </div>
       </motion.div>
     </div>
   );

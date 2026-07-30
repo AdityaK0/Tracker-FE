@@ -31,56 +31,84 @@ export default function RegisterPage() {
     }
   };
 
+  const fields = [
+    { name: 'username', label: 'Username', placeholder: 'your_username', type: 'text', autoComplete: 'username' },
+    { name: 'fullname', label: 'Full name', placeholder: 'John Doe', type: 'text', autoComplete: 'name' },
+    { name: 'email', label: 'Email', placeholder: 'john@example.com', type: 'email', autoComplete: 'email' },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#F7F7F7] flex items-center justify-center p-4">
-      <motion.div className="w-full max-w-sm" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-
-        <div className="flex justify-center mb-10">
-          <div className="w-8 h-8 bg-[#111111] rounded-md flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
+    <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center p-4">
+      <motion.div
+        className="w-full max-w-sm"
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="bg-white rounded-md p-7">
+          {/* Brand */}
+          <div className="flex flex-col items-center mb-7">
+            <div className="w-10 h-10 bg-[#111111] rounded-md flex items-center justify-center mb-3">
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-base font-semibold text-[#111111]">HabitFlow</h1>
+            <p className="text-sm text-[#888888] mt-1">Create your account</p>
           </div>
-        </div>
 
-        <div className="text-center mb-8">
-          <h1 className="text-lg font-semibold text-[#111111] mb-2">Create account</h1>
-          <p className="text-[#888888] text-sm font-light">Start building better habits</p>
-        </div>
-
-        <div className="bg-white border border-[#E5E5E5] rounded-md p-5">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {[
-              { name: 'username', label: 'Username', placeholder: 'your_username', type: 'text' },
-              { name: 'fullname', label: 'Full name', placeholder: 'John Doe', type: 'text' },
-              { name: 'email', label: 'Email', placeholder: 'john@example.com', type: 'email' },
-            ].map(({ name, label, placeholder, type }) => (
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
+            {fields.map(({ name, label, placeholder, type, autoComplete }) => (
               <div key={name}>
-                <label className="block text-sm font-normal text-[#111111] mb-1.5">{label}</label>
-                <input {...register(name)} type={type} className="input-base" placeholder={placeholder} />
+                <label className="block text-xs font-medium text-[#555555] mb-1.5">{label}</label>
+                <input {...register(name)} type={type} className="input-base" placeholder={placeholder} autoComplete={autoComplete} />
                 {errors[name] && <p className="text-red-500 text-xs mt-1">{errors[name]?.message}</p>}
               </div>
             ))}
 
             <div>
-              <label className="block text-sm font-normal text-[#111111] mb-1.5">Password</label>
+              <label className="block text-xs font-medium text-[#555555] mb-1.5">Password</label>
               <div className="relative">
-                <input {...register('password')} type={showPassword ? 'text' : 'password'} className="input-base pr-10" placeholder="••••••••" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#888888] hover:text-[#111111] transition-colors">
+                <input
+                  {...register('password')}
+                  type={showPassword ? 'text' : 'password'}
+                  className="input-base pr-10"
+                  placeholder="••••••••"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#AAAAAA] hover:text-[#555555] transition-colors"
+                >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
             </div>
 
-            <button type="submit" disabled={isSubmitting} className="btn-primary w-full mt-2 flex items-center justify-center">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn-primary w-full mt-1 flex items-center justify-center h-9"
+            >
               {isSubmitting ? 'Creating…' : 'Create account'}
             </button>
           </form>
-        </div>
 
-        <p className="text-center text-sm text-[#888888] font-light mt-5">
-          Already have an account?{' '}
-          <Link to="/login" className="text-[#111111] font-normal hover:underline underline-offset-2">Sign in</Link>
-        </p>
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-5">
+            <div className="flex-1 h-px bg-[#E5E5E5]" />
+            <span className="text-[11px] text-[#AAAAAA] uppercase tracking-wider">or</span>
+            <div className="flex-1 h-px bg-[#E5E5E5]" />
+          </div>
+
+          <p className="text-center text-sm text-[#888888]">
+            Already have an account?{' '}
+            <Link to="/login" className="text-[#111111] font-medium hover:underline underline-offset-2">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </motion.div>
     </div>
   );

@@ -162,13 +162,20 @@ export default function TrackerDetailPage() {
 
             <tbody>
               {Array.from({ length: tracker.duration_days }, (_, dayIndex) => {
-                const isToday = dayIndex === tracker.days_elapsed - 1 && tracker.status === 'active';
-                const isPast  = dayIndex < tracker.days_elapsed;
-                const isFuture = dayIndex >= tracker.days_elapsed;
+                const isToday     = dayIndex === tracker.days_elapsed - 1 && tracker.status === 'active';
+                const isPast      = dayIndex < tracker.days_elapsed;
+                const isFuture    = dayIndex >= tracker.days_elapsed;
+                const isImmutable = isPast && !isToday; // past days locked by backend
 
-                // Perfect-day tint
+                // Completion % — from snapshot for past days, live for today
                 const habitIds = tracker.habits.map(h => h.id);
-                const doneCount = habitIds.filter(hid => isHabitDone(dayIndex, hid)).length;
+                const snapshotDay = tracker.history?.days?.[String(dayIndex)];
+                const doneCount = isToday
+                  ? habitIds.filter(hid => isHabitDone(dayIndex, hid)).length
+                  : snapshotDay?.completed ?? habitIds.filter(hid => isHabitDone(dayIndex, hid)).length;
+                const dayPct = isPast && habitIds.length > 0
+                  ? (snapshotDay?.completion ?? Math.round((doneCount / habitIds.length) * 100))
+                  : null;
                 const isPerfect = isPast && doneCount === habitIds.length && habitIds.length > 0;
 
                 return (
@@ -198,8 +205,16 @@ export default function TrackerDetailPage() {
                       )}>
                         {dayIndex + 1}
                       </span>
-                      {isToday && (
-                        <span className="text-[10px] text-[#888888] leading-none">today</span>
+                      {dayPct !== null && (
+                        <span className={cn(
+                          'text-[10px] tabular-nums leading-none block mt-0.5',
+                          isPerfect ? 'text-[#16A34A]' : 'text-[#AAAAAA]',
+                        )}>
+                          {dayPct}%
+                        </span>
+                      )}
+                      {isToday && !isPast && (
+                        <span className="text-[10px] text-[#888888] leading-none block">today</span>
                       )}
                     </td>
 
@@ -209,24 +224,30 @@ export default function TrackerDetailPage() {
                       return (
                         <td key={habit.id} className="px-1 py-1 text-center align-middle">
                           <button
-                            onClick={() => !isFuture && toggleProgress(dayIndex, habit.id)}
-                            disabled={isFuture || progressMutation.isPending}
+                            onClick={() => !isFuture && !isImmutable && toggleProgress(dayIndex, habit.id)}
+                            disabled={isFuture || isImmutable || progressMutation.isPending}
                             title={
-                              isFuture ? 'Future day'
-                              : done    ? `Uncheck — ${habit.name}`
-                              :           `Check — ${habit.name}`
+                              isFuture    ? 'Future day — not yet'
+                              : isImmutable ? 'Past days are locked'
+                              : done        ? `Uncheck — ${habit.name}`
+                              :               `Check — ${habit.name}`
                             }
                             className={cn(
                               'w-7 h-7 rounded-md border flex items-center justify-center mx-auto transition-colors duration-100',
                               isFuture
                                 ? 'border-transparent cursor-default opacity-20 bg-transparent'
-                                : done
-                                  ? 'bg-[#111111] border-[#111111] hover:bg-[#2A2A2A] hover:border-[#2A2A2A] active:scale-95'
-                                  : 'border-[#E5E5E5] bg-white hover:border-[#999999] active:bg-[#F7F7F7]',
+                                : isImmutable
+                                  ? done
+                                    ? 'bg-[#D4D4D4] border-[#D4D4D4] cursor-not-allowed'   // muted fill
+                                    : 'border-[#E5E5E5] bg-[#FAFAFA] cursor-not-allowed'    // muted empty
+                                  : done
+                                    ? 'bg-[#111111] border-[#111111] hover:bg-[#2A2A2A] hover:border-[#2A2A2A] active:scale-95'
+                                    : 'border-[#E5E5E5] bg-white hover:border-[#999999] active:bg-[#F7F7F7]',
                             )}
                           >
                             {done && (
-                              <svg viewBox="0 0 12 10" className="w-3 h-3 text-white" fill="none">
+                              <svg viewBox="0 0 12 10" className="w-3 h-3" fill="none"
+                                style={{ color: isImmutable ? '#AAAAAA' : 'white' }}>
                                 <path d="M1 5L4.5 8.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                               </svg>
                             )}
