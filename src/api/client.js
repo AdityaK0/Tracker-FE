@@ -2,9 +2,20 @@ import axios from 'axios';
 
 const BASE_URL = 'http://localhost:8001';
 
+export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+
+export const GOOGLE_REDIRECT_URL = "/"
+
+export const TOKEN_EXCHANGED_URL = "https://oauth2.googleapis.com/token"
+
+export const USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
+
+export const GOOGLE_PUBLIC_KEY_URL = "https://www.googleapis.com/oauth2/v3/certs"
+
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -31,8 +42,11 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // A 401 from these just means "not logged in yet" — expected on every
+    // app-mount session check, not a session that needs refreshing.
     const isAuthEndpoint = originalRequest.url?.includes('/auth/login') ||
-      originalRequest.url?.includes('/auth/register');
+      originalRequest.url?.includes('/auth/register') ||
+      originalRequest.url?.includes('/auth/me');
 
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       if (isRefreshing) {
@@ -51,7 +65,9 @@ apiClient.interceptors.response.use(
       if (!refreshToken) {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
         return Promise.reject(error);
       }
 
@@ -68,7 +84,9 @@ apiClient.interceptors.response.use(
         processQueue(refreshError, null);
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

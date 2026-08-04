@@ -8,19 +8,16 @@ export function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      authApi
-        .me()
-        .then(setUser)
-        .catch(() => {
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-        })
-        .finally(() => setIsLoading(false));
-    } else {
-      setIsLoading(false);
-    }
+    // Always ping /me (not just when a token is in localStorage) so an
+    // HttpOnly-cookie session survives a page reload too.
+    authApi
+      .me()
+      .then(setUser)
+      .catch(() => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const login = useCallback(async (username, password) => {
@@ -40,6 +37,15 @@ export function AuthProvider({ children }) {
     [],
   );
 
+  // Used by the OAuth callback page: tokens arrive as URL query params rather
+  // than through a form submit, so this bypasses authApi.login().
+  const loginWithTokens = useCallback(async (accessToken, refreshToken) => {
+    localStorage.setItem('access_token', accessToken);
+    if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
+    const me = await authApi.me();
+    setUser(me);
+  }, []);
+
   const logout = useCallback(async () => {
     const refreshToken = localStorage.getItem('refresh_token') ?? '';
     try {
@@ -56,7 +62,10 @@ export function AuthProvider({ children }) {
     try {
       const fresh = await authApi.me();
       setUser(fresh);
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   }, []);
 
   return (
@@ -67,6 +76,7 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!user,
         login,
         register,
+        loginWithTokens,
         logout,
         refreshUser,
       }}

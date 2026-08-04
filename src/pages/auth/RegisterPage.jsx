@@ -38,14 +38,14 @@ export default function RegisterPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F7F7F7] flex items-center justify-center p-4">
       <motion.div
         className="w-full max-w-sm"
         initial={{ opacity: 0, y: 20, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="bg-white rounded-md p-7">
+        <div className="bg-white border border-[#E5E5E5] rounded-md p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
           {/* Brand */}
           <div className="flex flex-col items-center mb-7">
             <div className="w-10 h-10 bg-[#111111] rounded-md flex items-center justify-center mb-3">

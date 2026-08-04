@@ -4,6 +4,7 @@ import { useAuth } from './contexts/AuthContext';
 import AppLayout from './components/layout/AppLayout';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
+import AuthSuccess from './pages/auth/AuthSuccess';
 import DashboardPage from './pages/DashboardPage';
 import NotesPage from './pages/notes/NotesPage';
 import TrackersPage from './pages/trackers/TrackersPage';
@@ -49,6 +50,7 @@ export default function App() {
             </GuestRoute>
           }
         />
+        <Route path="/auth/success" element={<AuthSuccess />} />
         <Route
           element={
             <ProtectedRoute>
