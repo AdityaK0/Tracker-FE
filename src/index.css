@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -11,7 +11,7 @@
 
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: #F7F7F7;
+    background-color: #F4F4F5;
     color: #111111;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -20,12 +20,16 @@
     line-height: 1.5;
   }
 
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #D0D0D0; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #BBBBBB; }
+  ::-webkit-scrollbar-thumb { background: #D4D4D8; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #A1A1AA; }
 
-  ::selection { background: rgba(17, 17, 17, 0.08); }
+  ::selection { background: rgba(17, 17, 17, 0.1); }
 
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -33,87 +37,99 @@
 }
 
 @layer components {
-  /* ── Cards ── */
-  /* Default card: flat, bordered, no shadow */
+
+  /* ── Cards — hard offset shadow, near-square corners ── */
   .card {
-    @apply bg-white border border-[#E5E5E5] rounded-md;
+    @apply bg-white border border-black/10 rounded;
+    box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 0.85);
   }
 
-  /* Interactive card: hover changes bg, not elevation */
   .card-hover {
-    @apply card transition-colors duration-150 hover:bg-[#FAFAFA] hover:border-[#D0D0D0] cursor-pointer;
+    @apply card transition-all duration-150 cursor-pointer;
+  }
+  .card-hover:hover {
+    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 0.85);
+    transform: translate(-1px, -1px);
   }
 
-  /* Section wrapper: groups content with a bottom divider */
   .section {
-    @apply pb-5 mb-5 border-b border-[#E5E5E5] last:border-0 last:mb-0 last:pb-0;
+    @apply pb-5 mb-5 border-b border-zinc-100 last:border-0 last:mb-0 last:pb-0;
   }
 
   /* ── Buttons ── */
   .btn-primary {
+    font-family: 'Space Grotesk', sans-serif;
     @apply inline-flex items-center justify-center gap-2
-           bg-[#111111] text-white font-medium rounded-md px-3 py-1.5 text-sm
-           transition-colors duration-150
+           bg-[#111111] text-white font-semibold rounded px-3 py-1.5 text-sm
+           transition-all duration-150
            hover:bg-[#2A2A2A]
+           active:translate-y-px
            disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
+    font-family: 'Space Grotesk', sans-serif;
     @apply inline-flex items-center justify-center gap-2
-           bg-white text-[#111111] font-medium rounded-md px-3 py-1.5 text-sm
-           border border-[#E5E5E5]
-           transition-colors duration-150
-           hover:bg-[#F7F7F7] hover:border-[#CCCCCC]
+           bg-white text-[#111111] font-semibold rounded px-3 py-1.5 text-sm
+           border border-zinc-200
+           transition-all duration-150
+           hover:bg-zinc-50 hover:border-black
+           active:translate-y-px
            disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2
-           text-[#555555] hover:text-[#111111] hover:bg-[#F2F2F2]
-           font-medium rounded-md px-3 py-1.5 text-sm
+           text-zinc-500 hover:text-[#111111] hover:bg-zinc-100
+           font-medium rounded px-3 py-1.5 text-sm
            transition-colors duration-150;
   }
 
   .btn-danger {
+    font-family: 'Space Grotesk', sans-serif;
     @apply inline-flex items-center justify-center gap-2
-           bg-red-600 text-white font-medium rounded-md px-3 py-1.5 text-sm
-           transition-colors duration-150
-           hover:bg-red-700
+           bg-red-600 text-white font-semibold rounded px-3 py-1.5 text-sm
+           transition-all duration-150
+           hover:bg-red-700 active:translate-y-px
            disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   /* ── Inputs ── */
   .input-base {
-    @apply w-full bg-white border border-[#E5E5E5] rounded-md px-3 py-2
-           text-[#111111] placeholder-[#AAAAAA] text-sm
-           focus:outline-none focus:border-[#111111]
+    @apply w-full bg-white border border-zinc-200 rounded px-3 py-2
+           text-[#111111] placeholder-zinc-400 text-sm
+           focus:outline-none focus:border-black focus:ring-1 focus:ring-black/20
            transition-colors duration-150;
   }
 
-  /* ── Sidebar ── */
+  /* ── Sidebar nav ── */
   .sidebar-link {
-    @apply flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm
-           text-[#555555] hover:text-[#111111] hover:bg-[#F2F2F2]
+    font-family: 'Space Grotesk', sans-serif;
+    @apply flex items-center gap-2.5 px-2.5 py-1.5 rounded text-[11px] font-semibold
+           uppercase tracking-widest
+           text-zinc-500 hover:text-[#111111] hover:bg-zinc-100
            transition-colors duration-150 cursor-pointer select-none;
   }
 
   .sidebar-link-active {
-    @apply text-[#111111] bg-[#EBEBEB] font-medium;
+    @apply bg-[#111111] text-white hover:bg-[#111111] hover:text-white;
   }
 
-  /* ── Typography helpers ── */
+  /* ── Typography ── */
   .page-title {
-    @apply text-lg font-semibold text-[#111111] tracking-tight;
+    font-family: 'Space Grotesk', sans-serif;
+    @apply text-2xl font-black uppercase tracking-tight text-[#111111];
   }
 
   .section-label {
-    @apply text-xs font-medium text-[#888888] uppercase tracking-wider;
+    font-family: 'Space Grotesk', sans-serif;
+    @apply text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400;
   }
 
-  /* ── List items (replaces card-per-item pattern) ── */
+  /* ── List rows ── */
   .list-row {
     @apply flex items-center gap-3 px-4 py-3
-           border-b border-[#F2F2F2] last:border-0
-           hover:bg-[#FAFAFA] transition-colors duration-100;
+           border-b border-zinc-100 last:border-0
+           hover:bg-zinc-50 transition-colors duration-100;
   }
 }

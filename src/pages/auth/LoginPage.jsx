@@ -57,21 +57,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F7F7] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-zinc-100 flex items-center justify-center p-4">
       <motion.div
         className="w-full max-w-sm"
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.3 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
       >
-        <div className="bg-white border border-[#E5E5E5] rounded-md p-7 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        <div className="bg-white border-2 border-black p-7" style={{ borderRadius: '4px', boxShadow: '8px 8px 0px 0px rgba(0,0,0,1)' }}>
           {/* Brand */}
-          <div className="flex flex-col items-center mb-7">
-            <div className="w-10 h-10 bg-[#111111] rounded-md flex items-center justify-center mb-3">
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-10 h-10 bg-[#111111] flex items-center justify-center mb-4" style={{ borderRadius: '4px' }}>
               <Zap className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-base font-semibold text-[#111111]">HabitFlow</h1>
-            <p className="text-sm text-[#888888] mt-1">Sign in and build better habits</p>
+            <h1 className="text-2xl font-black uppercase tracking-tight text-[#111111]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              HabitFlow
+            </h1>
+            <p className="text-xs text-zinc-400 mt-1.5 uppercase tracking-widest font-medium">Sign in to continue</p>
           </div>
 
           {/* Form */}

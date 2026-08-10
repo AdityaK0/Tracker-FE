@@ -68,26 +68,28 @@ export default function AppLayout() {
       {/* ── Main content area ─────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-        {/* Top bar — always visible so hamburger is reachable when sidebar is closed */}
-        <header className="flex items-center gap-3 px-3 py-2.5 bg-white border-b border-[#E5E5E5] flex-shrink-0">
+        {/* Top bar */}
+        <header className="flex items-center gap-3 px-4 py-3 bg-white border-b border-zinc-100 flex-shrink-0">
           <button
             onClick={() => setSidebarOpen(o => !o)}
-            className="w-8 h-8 flex items-center justify-center rounded-md text-[#888888] hover:text-[#111111] hover:bg-[#F2F2F2] transition-colors flex-shrink-0"
+            className="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-[#111111] hover:bg-zinc-100 transition-colors flex-shrink-0"
+            style={{ borderRadius: '4px' }}
             aria-label="Toggle sidebar"
           >
             <PanelLeftOpen className="w-4 h-4" />
           </button>
 
-          {/* App name — hidden on desktop when sidebar is open (logo is already there) */}
           <div className={cn(
-            'flex items-center gap-1.5 transition-opacity duration-200',
+            'flex items-center gap-2 transition-opacity duration-200',
             'lg:opacity-0 lg:pointer-events-none',
             !sidebarOpen && 'lg:opacity-100 lg:pointer-events-auto',
           )}>
-            <div className="w-5 h-5 bg-[#111111] rounded-md flex items-center justify-center">
+            <div className="w-5 h-5 bg-[#111111] flex items-center justify-center" style={{ borderRadius: '4px' }}>
               <Zap className="w-3 h-3 text-white" />
             </div>
-            <span className="font-semibold text-[#111111] text-sm">HabitFlow</span>
+            <span className="text-sm font-black uppercase tracking-tight text-[#111111]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              HabitFlow
+            </span>
           </div>
         </header>
 

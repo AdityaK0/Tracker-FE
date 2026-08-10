@@ -42,18 +42,25 @@ export default function Sidebar({ onClose = () => {} }) {
   const displayName = user?.display_name || user?.fullname || user?.username;
 
   return (
-    <aside className="h-full w-full bg-[#F7F7F7] border-r border-[#E5E5E5] flex flex-col">
+    <aside className="h-full w-full bg-white border-r border-zinc-100 flex flex-col">
 
       {/* ── Wordmark ─────────────────────────────────────────────────── */}
-      <div className="px-4 pt-5 pb-3 flex items-center gap-2">
-        <div className="w-6 h-6 bg-[#111111] rounded-md flex items-center justify-center flex-shrink-0">
-          <Zap className="w-3.5 h-3.5 text-white" />
+      <div className="px-5 pt-6 pb-5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 bg-[#111111] flex items-center justify-center flex-shrink-0" style={{ borderRadius: '4px' }}>
+            <Zap className="w-4 h-4 text-white" />
+          </div>
+          <span
+            className="text-sm font-black uppercase tracking-tight text-[#111111]"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            HabitFlow
+          </span>
         </div>
-        <span className="text-sm font-semibold text-[#111111] tracking-tight">HabitFlow</span>
       </div>
 
       {/* ── Nav ──────────────────────────────────────────────────────── */}
-      <nav className="flex-1 px-3 py-1 space-y-0.5">
+      <nav className="flex-1 px-3 space-y-0.5">
         {navItems.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
@@ -61,10 +68,8 @@ export default function Sidebar({ onClose = () => {} }) {
             end={end}
             onClick={() => { if (window.innerWidth < 1024) onClose(); }}
             className={({ isActive }) => cn(
-              'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors duration-100 select-none',
-              isActive
-                ? 'bg-[#111111] text-white'
-                : 'text-[#666666] hover:text-[#111111] hover:bg-[#EBEBEB]',
+              'sidebar-link',
+              isActive && 'sidebar-link-active',
             )}
           >
             <Icon className="w-3.5 h-3.5 flex-shrink-0" />
@@ -74,7 +79,7 @@ export default function Sidebar({ onClose = () => {} }) {
       </nav>
 
       {/* ── User ─────────────────────────────────────────────────────── */}
-      <div className="px-3 py-3 mt-auto" ref={dropdownRef}>
+      <div className="px-3 py-4 mt-auto border-t border-zinc-100" ref={dropdownRef}>
         <AnimatePresence>
           {dropdownOpen && (
             <motion.div
@@ -82,30 +87,39 @@ export default function Sidebar({ onClose = () => {} }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
               transition={{ duration: 0.12 }}
-              className="mb-1.5 bg-white border border-[#E5E5E5] rounded-md overflow-hidden"
+              className="mb-2 bg-white border border-black/10 overflow-hidden"
+              style={{ borderRadius: '4px', boxShadow: '3px 3px 0px 0px rgba(0,0,0,0.85)' }}
             >
-              <div className="px-3 py-2.5 border-b border-[#F2F2F2]">
-                <p className="text-xs font-medium text-[#111111] truncate">{displayName}</p>
-                <p className="text-[11px] text-[#AAAAAA] truncate">{user?.email}</p>
+              <div className="px-3 py-2.5 border-b border-zinc-100">
+                <p
+                  className="text-[10px] font-black uppercase tracking-widest text-[#111111] truncate"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  {displayName}
+                </p>
+                <p className="text-[10px] text-zinc-400 truncate mt-0.5">{user?.email}</p>
               </div>
               <div className="p-1">
                 <button
                   onClick={() => { setDropdownOpen(false); onClose(); navigate('/profile'); }}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-[#555555] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors text-left"
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-widest text-zinc-500 hover:text-[#111111] hover:bg-zinc-50 transition-colors text-left"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif", borderRadius: '2px' }}
                 >
                   <User className="w-3 h-3" />Profile
                 </button>
                 <button
                   onClick={() => { setDropdownOpen(false); onClose(); navigate('/profile?tab=settings'); }}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-[#555555] hover:text-[#111111] hover:bg-[#F7F7F7] transition-colors text-left"
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-widest text-zinc-500 hover:text-[#111111] hover:bg-zinc-50 transition-colors text-left"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif", borderRadius: '2px' }}
                 >
                   <Settings className="w-3 h-3" />Settings
                 </button>
               </div>
-              <div className="border-t border-[#F2F2F2] p-1">
+              <div className="border-t border-zinc-100 p-1">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-red-500 hover:bg-red-50 transition-colors text-left"
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-widest text-red-500 hover:bg-red-50 transition-colors text-left"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif", borderRadius: '2px' }}
                 >
                   <LogOut className="w-3 h-3" />Log out
                 </button>
@@ -117,22 +131,28 @@ export default function Sidebar({ onClose = () => {} }) {
         <button
           onClick={() => setDropdownOpen(o => !o)}
           className={cn(
-            'w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md transition-colors duration-100',
-            dropdownOpen ? 'bg-[#EBEBEB]' : 'hover:bg-[#EBEBEB]',
+            'w-full flex items-center gap-2.5 px-2.5 py-2 transition-colors duration-100',
+            dropdownOpen ? 'bg-zinc-100' : 'hover:bg-zinc-100',
           )}
+          style={{ borderRadius: '4px' }}
         >
           {avatarUrl ? (
-            <img src={avatarUrl} alt="" className="w-6 h-6 rounded-md object-cover flex-shrink-0 border border-[#E5E5E5]" />
+            <img src={avatarUrl} alt="" className="w-7 h-7 object-cover flex-shrink-0 border border-black/10" style={{ borderRadius: '4px' }} />
           ) : (
-            <div className="w-6 h-6 bg-[#111111] rounded-md flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-[10px] font-medium">{initials}</span>
+            <div className="w-7 h-7 bg-[#111111] flex items-center justify-center flex-shrink-0" style={{ borderRadius: '4px' }}>
+              <span className="text-white text-[10px] font-black">{initials}</span>
             </div>
           )}
           <div className="min-w-0 flex-1 text-left">
-            <p className="text-xs font-medium text-[#111111] truncate leading-none mb-0.5">{displayName}</p>
-            <p className="text-[10px] text-[#AAAAAA] truncate">@{user?.username}</p>
+            <p
+              className="text-[11px] font-black uppercase tracking-tight text-[#111111] truncate leading-none mb-0.5"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              {displayName}
+            </p>
+            <p className="text-[10px] text-zinc-400 truncate">@{user?.username}</p>
           </div>
-          <ChevronUp className={cn('w-3 h-3 text-[#CCCCCC] transition-transform flex-shrink-0', dropdownOpen && 'rotate-180')} />
+          <ChevronUp className={cn('w-3 h-3 text-zinc-300 transition-transform flex-shrink-0', dropdownOpen && 'rotate-180')} />
         </button>
       </div>
     </aside>
