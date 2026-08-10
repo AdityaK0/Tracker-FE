@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Target, StickyNote, CheckCircle2, Clock, Flame } from 'lucide-react';
+import { Target, StickyNote, CheckCircle2, Clock, Flame, Star, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { dashboardApi, trackersApi, activityApi } from '../api/endpoints';
 import { useAuth } from '../contexts/AuthContext';
@@ -27,6 +27,7 @@ export default function DashboardPage() {
   const now = new Date();
   const firstName = user?.fullname?.split(' ')[0] || user?.username || '';
   const activeTrackers = (trackers ?? []).filter(t => t.status === 'active');
+  const pinnedTrackers = (trackers ?? []).filter(t => t.is_pinned);
   const todayPct = stats?.today_completion_percent ?? 0;
 
   const statItems = [
@@ -103,6 +104,49 @@ export default function DashboardPage() {
           </Link>
         ))}
       </div>
+
+      {/* ── Pinned trackers ──────────────────────────────────────────── */}
+      {pinnedTrackers.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="section-label flex items-center gap-1.5">
+              <Star className="w-3 h-3 fill-zinc-400 text-zinc-400" />
+              Pinned
+            </p>
+            <Link to="/trackers" className="flex items-center gap-0.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-[#111111] transition-colors" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              All <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {pinnedTrackers.map(t => {
+              const daysLeft = Math.max(0, Math.ceil((new Date(t.end_date) - now) / (1000 * 60 * 60 * 24)));
+              return (
+                <Link key={t.id} to={`/trackers/${t.id}`}>
+                  <div className="card px-4 py-3 hover:bg-zinc-50 transition-all duration-150 cursor-pointer" style={{ boxShadow: '2px 2px 0px 0px rgba(0,0,0,0.7)' }}>
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Star className="w-3 h-3 fill-[#111111] text-[#111111] flex-shrink-0" />
+                        <span className="text-sm font-semibold text-[#111111] truncate" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{t.name}</span>
+                      </div>
+                      <span className="text-xs font-bold text-[#111111] tabular-nums flex-shrink-0" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{t.completion_percent}%</span>
+                    </div>
+                    <ProgressBar value={t.completion_percent} />
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="text-[10px] text-zinc-400 uppercase tracking-wider">{t.habit_count} habit{t.habit_count !== 1 ? 's' : ''}</span>
+                      {t.current_streak > 0 && (
+                        <span className="text-[10px] text-zinc-400 uppercase tracking-wider flex items-center gap-0.5">
+                          <Flame className="w-2.5 h-2.5" />{t.current_streak}d
+                        </span>
+                      )}
+                      <span className="text-[10px] text-zinc-400 uppercase tracking-wider ml-auto">{daysLeft}d left</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ── Activity heatmap ──────────────────────────────────────────── */}
       <div>
