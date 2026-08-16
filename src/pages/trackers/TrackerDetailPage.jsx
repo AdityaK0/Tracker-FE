@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { Fragment, useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { ChevronLeft, Flame, Trophy, Clock, Target, CheckSquare, XSquare, Trash2 } from 'lucide-react';
+import {
+  ChevronLeft, Flame, Trophy, Clock, Target,
+  CheckSquare, XSquare, Trash2,
+} from 'lucide-react';
+import { format } from 'date-fns';
 import { trackersApi } from '../../api/endpoints';
 import Badge from '../../components/ui/Badge';
 import ProgressBar from '../../components/ui/ProgressBar';
@@ -24,7 +27,14 @@ export default function TrackerDetailPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const trackerId = parseInt(id, 10);
+
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [expandedDay, setExpandedDay] = useState(null);
+  const [noteText, setNoteText] = useState('');
+  const [noteSaving, setNoteSaving] = useState(false);
+  const saveTimeoutRef = useRef(null);
+  const todayRowRef = useRef(null);
+  const tableContainerRef = useRef(null);
 
   const { data: tracker, isLoading } = useQuery({
     queryKey: ['tracker', trackerId],
@@ -39,6 +49,18 @@ export default function TrackerDetailPage() {
     onError: () => toast.error('Failed to save progress'),
   });
 
+  const noteMutation = useMutation({
+    mutationFn: ({ dayIndex, content }) => trackersApi.upsertDayNote(trackerId, dayIndex, content),
+    onSuccess: (data) => {
+      qc.setQueryData(['tracker', trackerId], data);
+      setNoteSaving(false);
+    },
+    onError: () => {
+      toast.error('Failed to save note');
+      setNoteSaving(false);
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: () => trackersApi.delete(trackerId),
     onSuccess: () => {
@@ -49,7 +71,42 @@ export default function TrackerDetailPage() {
     onError: () => toast.error('Failed to delete tracker'),
   });
 
+  useEffect(() => {
+    const container = tableContainerRef.current;
+    const row = todayRowRef.current;
+    if (!container || !row) return;
+    // Scroll only within the table container so the page header stays put
+    const targetTop = row.offsetTop - container.clientHeight / 2 + row.offsetHeight / 2;
+    container.scrollTop = Math.max(0, targetTop);
+  }, [tracker?.id]);
+
   if (isLoading || !tracker) return <LoadingSpinner />;
+
+  const noteMap = tracker.day_notes || {};
+
+  const getDayDate = (dayIndex) => {
+    const [y, m, d] = tracker.start_date.split('-').map(Number);
+    return new Date(y, m - 1, d + dayIndex);
+  };
+
+  const handleDayClick = (dayIndex) => {
+    if (expandedDay === dayIndex) {
+      setExpandedDay(null);
+      return;
+    }
+    setExpandedDay(dayIndex);
+    clearTimeout(saveTimeoutRef.current);
+    setNoteSaving(false);
+    setNoteText(noteMap[String(dayIndex)] ?? '');
+  };
+
+  const scheduleNoteSave = (content) => {
+    setNoteSaving(true);
+    clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      noteMutation.mutate({ dayIndex: expandedDay, content });
+    }, 800);
+  };
 
   const isHabitDone = (dayIndex, habitId) =>
     tracker.progress.some(p => p.day_index === dayIndex && p.habit_id === habitId && p.completed);
@@ -60,11 +117,11 @@ export default function TrackerDetailPage() {
 
   const statItems = [
     { label: 'Completion', value: `${tracker.completion_percent}%`, icon: Target },
-    { label: 'Streak', value: `${tracker.current_streak}d`, icon: Flame },
-    { label: 'Best', value: `${tracker.longest_streak}d`, icon: Trophy },
-    { label: 'Days left', value: String(tracker.days_remaining), icon: Clock },
-    { label: 'Done', value: String(tracker.completed_habits), icon: CheckSquare },
-    { label: 'Missed', value: String(tracker.missed_habits), icon: XSquare },
+    { label: 'Streak',     value: `${tracker.current_streak}d`,     icon: Flame },
+    { label: 'Best',       value: `${tracker.longest_streak}d`,     icon: Trophy },
+    { label: 'Days left',  value: String(tracker.days_remaining),   icon: Clock },
+    { label: 'Done',       value: String(tracker.completed_habits), icon: CheckSquare },
+    { label: 'Missed',     value: String(tracker.missed_habits),    icon: XSquare },
   ];
 
   return (
@@ -94,7 +151,7 @@ export default function TrackerDetailPage() {
 
       {/* Stats strip */}
       <div className="flex items-center border border-[#E5E5E5] rounded-md overflow-hidden mb-5">
-        {statItems.map(({ label, value, icon: Icon }, i) => (
+        {statItems.map(({ label, value }, i) => (
           <div
             key={label}
             className={cn('flex-1 px-3 py-2.5 text-center', i < statItems.length - 1 && 'border-r border-[#E5E5E5]')}
@@ -119,39 +176,29 @@ export default function TrackerDetailPage() {
         </span>
       </div>
 
-      {/* ── Tracker table — all screen sizes ─────────────────────────────────
-          Sticky thead (top) + sticky Day column (left) + horizontal scroll.
-          Exactly like Google Sheets / GitHub Projects on mobile.
-          Touch targets: 44×44px checkbox cells (w-11 h-11).
-      ──────────────────────────────────────────────────────────────────── */}
+      {/* ── Tracker table ──────────────────────────────────────────────────── */}
       <div className="card overflow-hidden">
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#E5E5E5]">
           <h2 className="text-xs font-medium text-[#888888] uppercase tracking-wider">Daily Progress</h2>
-          <span className="text-xs text-[#AAAAAA]">Tap to toggle</span>
+          <span className="text-xs text-[#AAAAAA]">Tap a day number to view / add note</span>
         </div>
 
-        {/* Scroll container — horizontal on mobile, vertical for long trackers */}
-        <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '65vh' }}>
+        <div ref={tableContainerRef} className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '70vh' }}>
           <table className="border-collapse w-max min-w-full">
 
-            {/* Sticky header row */}
             <thead className="sticky top-0 z-20">
               <tr className="bg-white border-b border-[#E5E5E5]">
-
-                {/* Day column header — double-sticky: top + left */}
                 <th
                   scope="col"
-                  className="sticky left-0 z-30 bg-white px-3 py-2.5 text-left text-[10px] font-medium text-[#888888] uppercase tracking-wider border-r border-[#E5E5E5] min-w-[72px]"
+                  className="sticky left-0 z-30 bg-white px-3 py-2.5 text-left text-[10px] font-medium text-[#888888] uppercase tracking-wider border-r border-[#E5E5E5] min-w-[80px]"
                 >
                   Day
                 </th>
-
-                {/* One column per habit */}
                 {tracker.habits.map(habit => (
                   <th
                     key={habit.id}
                     scope="col"
-                    style={{ minWidth: '120px' }}
+                    style={{ minWidth: '110px' }}
                     className="px-3 py-2.5 text-center text-[10px] font-medium text-[#888888] normal-case leading-snug"
                   >
                     {habit.name}
@@ -165,9 +212,11 @@ export default function TrackerDetailPage() {
                 const isToday     = dayIndex === tracker.days_elapsed - 1 && tracker.status === 'active';
                 const isPast      = dayIndex < tracker.days_elapsed;
                 const isFuture    = dayIndex >= tracker.days_elapsed;
-                const isImmutable = isPast && !isToday; // past days locked by backend
+                const isImmutable = isPast && !isToday;
+                const isExpanded  = expandedDay === dayIndex;
+                const hasNote     = Boolean(noteMap[String(dayIndex)]);
+                const canNote     = !isFuture; // today and past can show/add notes
 
-                // Completion % — from snapshot for past days, live for today
                 const habitIds = tracker.habits.map(h => h.id);
                 const snapshotDay = tracker.history?.days?.[String(dayIndex)];
                 const doneCount = isToday
@@ -178,84 +227,149 @@ export default function TrackerDetailPage() {
                   : null;
                 const isPerfect = isPast && doneCount === habitIds.length && habitIds.length > 0;
 
+                const rowBg = isPerfect ? 'bg-[#F0FDF4]' : isToday ? 'bg-[#FAFAFA]' : 'bg-white';
+                const cellBg = isPerfect ? 'bg-[#F0FDF4]' : isToday ? 'bg-[#FAFAFA]' : 'bg-white';
+
                 return (
-                  <tr
-                    key={dayIndex}
-                    className={cn(
-                      'border-b border-[#F2F2F2] transition-colors',
-                      isPerfect   ? 'bg-[#F0FDF4]'  // subtle green for 100% days
-                      : isToday   ? 'bg-[#FAFAFA]'
-                      : 'hover:bg-[#FAFAFA]',
-                    )}
-                  >
-                    {/* Day cell — sticky left, matches row tint */}
-                    <td
+                  <Fragment key={dayIndex}>
+                    {/* ── Main day row ─────────────────────────────────── */}
+                    <tr
+                      ref={isToday ? todayRowRef : null}
                       className={cn(
-                        'sticky left-0 z-10 px-3 py-1.5 border-r border-[#E5E5E5] align-middle',
-                        isPerfect ? 'bg-[#F0FDF4]'
-                        : isToday ? 'bg-[#FAFAFA]'
-                        : 'bg-white',
+                        'border-b transition-colors',
+                        isExpanded ? 'border-[#E5E5E5]' : 'border-[#F2F2F2]',
+                        rowBg,
+                        !isPerfect && !isToday && 'hover:bg-[#FAFAFA]',
                       )}
                     >
-                      <span className={cn(
-                        'text-sm font-medium tabular-nums block',
-                        isToday   ? 'text-[#111111]'
-                        : isPast  ? 'text-[#555555]'
-                        : 'text-[#CCCCCC]',
-                      )}>
-                        {dayIndex + 1}
-                      </span>
-                      {dayPct !== null && (
-                        <span className={cn(
-                          'text-[10px] tabular-nums leading-none block mt-0.5',
-                          isPerfect ? 'text-[#16A34A]' : 'text-[#AAAAAA]',
-                        )}>
-                          {dayPct}%
-                        </span>
-                      )}
-                      {isToday && !isPast && (
-                        <span className="text-[10px] text-[#888888] leading-none block">today</span>
-                      )}
-                    </td>
+                      {/* Day cell — clickable for note */}
+                      <td
+                        onClick={() => canNote && handleDayClick(dayIndex)}
+                        className={cn(
+                          'sticky left-0 z-10 px-3 py-1.5 align-middle transition-colors',
+                          isExpanded
+                            ? 'border-r-2 border-r-[#111111]'
+                            : 'border-r border-r-[#E5E5E5]',
+                          canNote ? 'cursor-pointer hover:bg-[#F0F0F0]' : 'cursor-default',
+                          cellBg,
+                        )}
+                      >
+                        <div className="flex items-center gap-1">
+                          <span className={cn(
+                            'text-sm tabular-nums',
+                            isExpanded          ? 'font-bold text-[#111111]'
+                            : isToday           ? 'font-medium text-[#111111]'
+                            : isPast            ? 'font-medium text-[#555555]'
+                            : 'font-medium text-[#CCCCCC]',
+                          )}>
+                            {dayIndex + 1}
+                          </span>
+                          {hasNote && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#AAAAAA] flex-shrink-0" title="Has note" />
+                          )}
+                        </div>
+                        {dayPct !== null && (
+                          <span className={cn(
+                            'text-[10px] tabular-nums leading-none block mt-0.5',
+                            isPerfect ? 'text-[#16A34A]' : 'text-[#AAAAAA]',
+                          )}>
+                            {dayPct}%
+                          </span>
+                        )}
+                        {isToday && (
+                          <span className="text-[10px] text-[#888888] leading-none block">today</span>
+                        )}
+                      </td>
 
-                    {/* Habit cells */}
-                    {tracker.habits.map(habit => {
-                      const done = isHabitDone(dayIndex, habit.id);
-                      return (
-                        <td key={habit.id} className="px-1 py-1 text-center align-middle">
-                          <button
-                            onClick={() => !isFuture && !isImmutable && toggleProgress(dayIndex, habit.id)}
-                            disabled={isFuture || isImmutable || progressMutation.isPending}
-                            title={
-                              isFuture    ? 'Future day — not yet'
-                              : isImmutable ? 'Past days are locked'
-                              : done        ? `Uncheck — ${habit.name}`
-                              :               `Check — ${habit.name}`
-                            }
-                            className={cn(
-                              'w-7 h-7 rounded-md border flex items-center justify-center mx-auto transition-colors duration-100',
-                              isFuture
-                                ? 'border-transparent cursor-default opacity-20 bg-transparent'
-                                : isImmutable
-                                  ? done
-                                    ? 'bg-[#D4D4D4] border-[#D4D4D4] cursor-not-allowed'   // muted fill
-                                    : 'border-[#E5E5E5] bg-[#FAFAFA] cursor-not-allowed'    // muted empty
-                                  : done
-                                    ? 'bg-[#111111] border-[#111111] hover:bg-[#2A2A2A] hover:border-[#2A2A2A] active:scale-95'
-                                    : 'border-[#E5E5E5] bg-white hover:border-[#999999] active:bg-[#F7F7F7]',
+                      {/* Habit checkbox cells */}
+                      {tracker.habits.map(habit => {
+                        const done = isHabitDone(dayIndex, habit.id);
+                        return (
+                          <td key={habit.id} className="px-1 py-1 text-center align-middle">
+                            <button
+                              onClick={() => !isFuture && !isImmutable && toggleProgress(dayIndex, habit.id)}
+                              disabled={isFuture || isImmutable || progressMutation.isPending}
+                              title={
+                                isFuture     ? 'Future day — not yet'
+                                : isImmutable ? 'Past days are locked'
+                                : done        ? `Uncheck — ${habit.name}`
+                                :               `Check — ${habit.name}`
+                              }
+                              className={cn(
+                                'w-5 h-5 border flex items-center justify-center mx-auto transition-colors duration-100',
+                                isFuture
+                                  ? 'border-transparent cursor-default opacity-20 bg-transparent'
+                                  : isImmutable
+                                    ? done
+                                      ? 'bg-[#D4D4D4] border-[#D4D4D4] cursor-not-allowed'
+                                      : 'border-[#E5E5E5] bg-[#FAFAFA] cursor-not-allowed'
+                                    : done
+                                      ? 'bg-[#111111] border-[#111111] hover:bg-[#2A2A2A] hover:border-[#2A2A2A] active:scale-95'
+                                      : 'border-[#E5E5E5] bg-white hover:border-[#999999] active:bg-[#F7F7F7]',
+                              )}
+                            >
+                              {done && (
+                                <svg viewBox="0 0 12 10" className="w-2.5 h-2.5" fill="none"
+                                  style={{ color: isImmutable ? '#AAAAAA' : 'white' }}>
+                                  <path d="M1 5L4.5 8.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              )}
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
+
+                    {/* ── Expanded note row ─────────────────────────────── */}
+                    {isExpanded && (
+                      <tr className="border-b border-[#E5E5E5]">
+                        <td
+                          colSpan={1 + tracker.habits.length}
+                          className="px-4 py-3 bg-[#FAFAFA] border-l-2 border-l-[#111111]"
+                        >
+                          <p className="text-[10px] text-[#AAAAAA] mb-2 font-medium uppercase tracking-wider">
+                            {format(getDayDate(dayIndex), 'EEE, MMM d')}
+                            {isImmutable && (
+                              <span className="ml-2 normal-case tracking-normal">· read only</span>
                             )}
-                          >
-                            {done && (
-                              <svg viewBox="0 0 12 10" className="w-3 h-3" fill="none"
-                                style={{ color: isImmutable ? '#AAAAAA' : 'white' }}>
-                                <path d="M1 5L4.5 8.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
-                            )}
-                          </button>
+                          </p>
+
+                          {isToday ? (
+                            // ── Today — editable ─────────────────────────
+                            <>
+                              <textarea
+                                autoFocus
+                                className="w-full max-w-2xl text-sm text-[#111111] placeholder-[#CCCCCC] bg-white border border-[#E5E5E5] rounded p-2.5 resize-none focus:outline-none focus:border-[#111111] transition-colors"
+                                rows={3}
+                                placeholder="How did today go? What did you notice?"
+                                value={noteText}
+                                onChange={(e) => {
+                                  setNoteText(e.target.value);
+                                  scheduleNoteSave(e.target.value);
+                                }}
+                              />
+                              <p className={cn(
+                                'text-[10px] mt-1 transition-opacity duration-200',
+                                noteSaving ? 'text-[#AAAAAA] opacity-100' : 'opacity-0',
+                              )}>
+                                Saving…
+                              </p>
+                            </>
+                          ) : (
+                            // ── Past — read only ──────────────────────────
+                            <p className={cn(
+                              'text-sm max-w-2xl leading-relaxed',
+                              noteMap[String(dayIndex)]
+                                ? 'text-[#444444]'
+                                : 'text-[#CCCCCC] italic',
+                            )}>
+                              {noteMap[String(dayIndex)] || 'No note was written for this day.'}
+                            </p>
+                          )}
                         </td>
-                      );
-                    })}
-                  </tr>
+                      </tr>
+                    )}
+                  </Fragment>
                 );
               })}
             </tbody>

@@ -58,6 +58,9 @@ export const trackersApi = {
       .then((r) => r.data),
 
   togglePin: (id) => apiClient.patch(`/trackers/${id}/pin`).then((r) => r.data),
+
+  upsertDayNote: (id, dayIndex, content) =>
+    apiClient.put(`/trackers/${id}/notes/${dayIndex}`, { content }).then((r) => r.data),
 };
 
 // Trash

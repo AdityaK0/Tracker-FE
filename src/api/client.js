@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8001';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
 
 export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 
